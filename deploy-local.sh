@@ -42,14 +42,32 @@ S3_ORIGIN=""
 out(){ aws cloudformation describe-stacks --stack-name "$STACK" --region "$REGION" \
   --query "Stacks[0].Outputs[?OutputKey=='$1'].OutputValue" --output text 2>/dev/null || true; }
 
+# Private artifacts bucket for packaged Lambda code (bypasses the 4 KB inline limit)
+ART_FILE="$CLOUD_DIR/.qb_artifacts"
+ART=""
+[ -f "$ART_FILE" ] && ART=$(cat "$ART_FILE")
+if [ -z "$ART" ] || ! aws s3api head-bucket --bucket "$ART" --region "$REGION" 2>/dev/null; then
+  ART="questboard-artifacts-$RANDOM$RANDOM"
+  echo ">> Creating private artifacts bucket $ART"
+  aws s3api create-bucket --bucket "$ART" --region "$REGION" \
+    --create-bucket-configuration LocationConstraint="$REGION" >/dev/null
+  echo "$ART" > "$ART_FILE"
+fi
+mkdir -p "$CLOUD_DIR/dist"
+PACKAGED="$CLOUD_DIR/dist/packaged.yaml"
+echo ">> Packaging Lambda code"
+aws cloudformation package --template-file "$CLOUD_DIR/template.yaml" \
+  --s3-bucket "$ART" --output-template-file "$PACKAGED" --region "$REGION" >/dev/null
+
 deploy_stack(){ # $1 = comma-joined allowed CORS origins ("" = template default "*")
   local PARAMS=()
   [ -n "${GEMINI_API_KEY:-}" ] && PARAMS+=("GeminiApiKey=$GEMINI_API_KEY")
+  [ -n "${ADMIN_EMAIL:-}" ] && PARAMS+=("AdminEmail=$ADMIN_EMAIL")
   if [ -n "$KNOWN_BUCKET" ]; then
     PARAMS+=("SiteDomain=$KNOWN_BUCKET.s3-website.$REGION.amazonaws.com")
     [ -n "$1" ] && PARAMS+=("SiteOrigin=$1")
   fi
-  local ARGS=(--stack-name "$STACK" --template-file "$CLOUD_DIR/template.yaml"
+  local ARGS=(--stack-name "$STACK" --template-file "$PACKAGED"
     --capabilities CAPABILITY_IAM --region "$REGION" --no-fail-on-empty-changeset)
   if [ ${#PARAMS[@]} -gt 0 ]; then
     aws cloudformation deploy "${ARGS[@]}" --parameter-overrides "${PARAMS[@]}"

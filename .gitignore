@@ -1,6 +1,7 @@
 .env
 cloud/.env
 cloud/.qb_bucket
+cloud/.qb_artifacts
 cloud/dist/
 
 # local-only files — kept on disk, not published

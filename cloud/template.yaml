@@ -9,7 +9,7 @@ Parameters:
     Description: Google AI Studio key for the assistant (blank = assistant disabled)
   AiDailyLimit:
     Type: String
-    Default: "30"
+    Default: "200"
     Description: Max AI calls per user per day
   ModelId:
     Type: String
@@ -23,6 +23,10 @@ Parameters:
     Type: String
     Default: ""
     Description: S3 website domain to front with CloudFront (blank = no CDN yet)
+  AdminEmail:
+    Type: String
+    Default: ""
+    Description: Email of the community-chat admin (can delete messages and ban users)
 
 Conditions:
   HasSite: !Not [!Equals [!Ref SiteDomain, ""]]
@@ -82,7 +86,7 @@ Resources:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
-                Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem]
+                Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:DeleteItem, dynamodb:Scan]
                 Resource: !GetAtt StateTable.Arn
 
   StateFn:
@@ -94,41 +98,8 @@ Resources:
       Timeout: 10
       Role: !GetAtt FnRole.Arn
       Environment:
-        Variables: { TABLE: !Ref StateTable }
-      Code:
-        ZipFile: |
-          const {DynamoDBClient,GetItemCommand,PutItemCommand}=require("@aws-sdk/client-dynamodb");
-          const c=new DynamoDBClient({});
-          const T=process.env.TABLE;
-          exports.handler=async(e)=>{
-            const cl=e.requestContext&&e.requestContext.authorizer&&e.requestContext.authorizer.jwt&&e.requestContext.authorizer.jwt.claims;
-            const sub=cl&&cl.sub;
-            if(!sub)return{statusCode:401,body:"unauthorized"};
-            const m=e.requestContext.http.method,p=e.rawPath||"";
-            try{
-              const b=e.isBase64Encoded?Buffer.from(e.body||"",'base64').toString('utf8'):(e.body||"{}");
-              if(p==="/feedback"&&m==="POST"){
-                const txt=String((JSON.parse(b)||{}).text||"").slice(0,2000).trim();
-                if(!txt)return{statusCode:400,body:"empty"};
-                const now=new Date().toISOString();
-                await c.send(new PutItemCommand({TableName:T,Item:{pk:{S:"fb#"+now+"#"+sub.slice(0,8)},text:{S:txt},email:{S:String(cl.email||"")},at:{S:now}}}));
-                return{statusCode:200,headers:{"content-type":"application/json"},body:"{\"ok\":true}"};
-              }
-              if(m==="GET"){
-                const r=await c.send(new GetItemCommand({TableName:T,Key:{pk:{S:sub}}}));
-                return{statusCode:200,headers:{"content-type":"application/json"},body:r.Item&&r.Item.state?r.Item.state.S:"{}"};
-              }
-              if(m==="PUT"){
-                if(b.length>380000)return{statusCode:413,body:"state too large"};
-                JSON.parse(b);
-                await c.send(new PutItemCommand({TableName:T,Item:{pk:{S:sub},state:{S:b},updatedAt:{S:new Date().toISOString()}}}));
-                return{statusCode:200,headers:{"content-type":"application/json"},body:"{\"ok\":true}"};
-              }
-              return{statusCode:405,body:""};
-            }catch(err){
-              return{statusCode:err instanceof SyntaxError?400:500,body:"error"};
-            }
-          };
+        Variables: { TABLE: !Ref StateTable, ADMIN: !Ref AdminEmail }
+      Code: lambda/state
 
   AiFn:
     Type: AWS::Lambda::Function
@@ -144,39 +115,7 @@ Resources:
           GKEY: !Ref GeminiApiKey
           LIMIT: !Ref AiDailyLimit
           MODEL: !Ref ModelId
-      Code:
-        ZipFile: |
-          const {DynamoDBClient,UpdateItemCommand}=require("@aws-sdk/client-dynamodb");
-          const c=new DynamoDBClient({});
-          const T=process.env.TABLE,K=process.env.GKEY,L=parseInt(process.env.LIMIT||"30",10);
-          const r=(s,o)=>({statusCode:s,headers:{"content-type":"application/json"},body:JSON.stringify(o)});
-          exports.handler=async(e)=>{
-            const cl=e.requestContext&&e.requestContext.authorizer&&e.requestContext.authorizer.jwt&&e.requestContext.authorizer.jwt.claims;
-            const sub=cl&&cl.sub;
-            if(!sub)return r(401,{error:"unauthorized"});
-            if(!K)return r(501,{error:"assistant not configured"});
-            const day=new Date().toISOString().slice(0,10);
-            try{
-              const u=await c.send(new UpdateItemCommand({TableName:T,Key:{pk:{S:sub+"#ai#"+day}},UpdateExpression:"ADD n :o",ExpressionAttributeValues:{":o":{N:"1"}},ReturnValues:"UPDATED_NEW"}));
-              if(parseInt(u.Attributes.n.N,10)>L)return r(429,{error:"Daily assistant limit reached - resets at midnight UTC."});
-            }catch(err){}
-            let b;
-            try{b=JSON.parse(e.isBase64Encoded?Buffer.from(e.body||"","base64").toString("utf8"):(e.body||"{}"));}
-            catch(_){return r(400,{error:"bad json"});}
-            const sys=String(b.system||"").slice(0,9000);
-            const msgs=Array.isArray(b.messages)?b.messages.slice(-12):[];
-            const contents=msgs.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:String(m.text||"").slice(0,4000)}]}));
-            if(!contents.length)return r(400,{error:"no messages"});
-            const resp=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+(process.env.MODEL||"gemini-2.0-flash")+":generateContent?key="+K,{
-              method:"POST",headers:{"content-type":"application/json"},
-              body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents,generationConfig:{temperature:0.4,maxOutputTokens:2048,responseMimeType:"application/json"}})
-            });
-            const j=await resp.json().catch(()=>({}));
-            const parts=j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts;
-            const text=parts?parts.map(p=>p.text||"").join(""):"";
-            if(!resp.ok||!text)return r(502,{error:"model error"});
-            return r(200,{text});
-          };
+      Code: lambda/ai
 
   Api:
     Type: AWS::ApiGatewayV2::Api
@@ -242,6 +181,24 @@ Resources:
       AuthorizerId: !Ref JwtAuth
       Target: !Sub "integrations/${Integration}"
 
+  RouteCommunityGet:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: "GET /community"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuth
+      Target: !Sub "integrations/${Integration}"
+
+  RouteCommunityPost:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: "POST /community"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuth
+      Target: !Sub "integrations/${Integration}"
+
   RouteAi:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -265,6 +222,14 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/*/state"
+
+  CommunityPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref StateFn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/*/community"
 
   FeedbackPermission:
     Type: AWS::Lambda::Permission

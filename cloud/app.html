@@ -76,15 +76,21 @@
   .nextmile { margin-top:12px; font-size:13px; color:var(--muted); text-align:center; }
   .nextmile b { color:var(--ink); }
 
-  .ghmonths { display:flex; font-size:10px; color:var(--muted); margin-bottom:5px; width:max-content; }
+  .ghlayout { display:flex; gap:7px; }
+  .ghdays { display:flex; flex-direction:column; gap:3px; font-size:9.5px; color:var(--muted); padding-top:18px; flex:none; }
+  .ghdays span { height:12px; line-height:12px; }
+  .ghmonths { display:flex; font-size:10px; color:var(--muted); margin-bottom:6px; width:max-content; }
   .ghmonths span { flex:none; overflow:hidden; white-space:nowrap; }
-  .ghscroll { overflow-x:auto; padding-bottom:2px; }
-  .ghgrid { display:grid; grid-template-rows:repeat(7,13px); grid-auto-flow:column; grid-auto-columns:13px; gap:3px; width:max-content; }
-  .ghc { width:13px; height:13px; border-radius:3px; background:var(--gh0); display:inline-block; }
+  .ghscroll { overflow-x:auto; padding-bottom:2px; flex:1; }
+  .ghgrid { display:flex; width:max-content; }
+  .ghweek { display:flex; flex-direction:column; gap:3px; margin-right:3px; flex:none; }
+  .ghweek.mgap { margin-left:9px; }
+  .ghc { width:12px; height:12px; border-radius:3px; background:var(--gh0); display:inline-block; }
   .ghgrid .ghc { cursor:pointer; }
   .ghgrid .ghc:hover { transform:scale(1.25); outline:1.5px solid var(--muted); }
   .ghc.l1{background:var(--gh1)} .ghc.l2{background:var(--gh2)} .ghc.l3{background:var(--gh3)} .ghc.l4{background:var(--gh4)}
   .ghc.future{ opacity:.35; }
+  .ghc.void{ visibility:hidden; pointer-events:none; }
   .ghc.today{ outline:2px solid var(--accent); outline-offset:1px; }
   .ghc.sel{ outline:2px solid var(--violet); outline-offset:1px; }
   .ghfoot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; flex-wrap:wrap; font-size:11.5px; color:var(--muted); }
@@ -258,6 +264,74 @@
   .fb-const h3 { color:var(--ink); font-size:13.5px; margin:0 0 8px; }
   .fb-const h4 { color:var(--ink); font-size:12px; text-transform:uppercase; letter-spacing:.07em; margin:14px 0 4px; }
   .fb-const p { margin:0 0 8px; }
+
+  /* ===== buttery micro-interactions ===== */
+  html { scroll-behavior:smooth; }
+  button { transition:background .15s ease, border-color .15s ease, opacity .15s ease, transform .08s ease; }
+  button:active { transform:scale(.96); }
+  .card, details.section { transition:box-shadow .2s ease; }
+  ul.qlist li { transition:background .2s ease, border-color .2s ease; }
+
+  /* ===== assistant: above the feedback page, modern chat look ===== */
+  #aiBubble { z-index:10900; }
+  #aiPanel { z-index:10901; border-radius:20px; height:min(540px,72vh); }
+  .ai-head { background:var(--card); }
+  .ai-msg { border:none; border-radius:16px; box-shadow:0 1px 2px rgba(20,30,60,.06); font-size:14px; padding:10px 14px; }
+  .ai-msg.user { border-bottom-right-radius:6px; }
+  .ai-msg.bot { border-bottom-left-radius:6px; }
+  .ai-input { padding:10px; }
+  .ai-input input { border-radius:999px; padding:11px 16px; }
+  .ai-input button { border-radius:50%; width:42px; height:42px; padding:0; flex:none; }
+  .ai-typing { display:inline-flex; gap:4px; padding:11px 14px; background:var(--track); border-radius:16px; border-bottom-left-radius:6px; align-self:flex-start; }
+  .ai-typing i { width:6px; height:6px; border-radius:50%; background:var(--muted); animation:blink 1.2s infinite; }
+  .ai-typing i:nth-child(2){ animation-delay:.2s } .ai-typing i:nth-child(3){ animation-delay:.4s }
+  @keyframes blink { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+
+  /* ===== feedback prominence ===== */
+  #fbText { min-height:170px; font-size:16px; }
+  .fb-send { width:100%; max-width:320px; padding:13px 22px; }
+
+  /* ===== community chat ===== */
+  .cm-sec { margin-top:34px; border-top:1px solid var(--line); padding-top:18px; }
+  .cm-sec h3 { font-size:16px; margin:0 0 4px; letter-spacing:-.01em; }
+  .cm-sub { color:var(--muted); font-size:12.5px; margin:0 0 12px; }
+  #cmMe { font-size:12px; color:var(--blue-ink); background:var(--soft-blue); border:1px solid var(--soft-blue-border); border-radius:999px; padding:4px 12px; display:inline-block; margin-bottom:10px; }
+  #cmLog { max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:4px 2px; }
+  .cm-msg { border:1px solid var(--line); border-radius:12px; padding:9px 12px; background:var(--card); font-size:13.5px; line-height:1.45; word-break:break-word; }
+  .cm-msg.mine { background:var(--accent-soft); border-color:var(--accent-border); }
+  .cm-meta { font-size:11px; color:var(--muted); margin-bottom:3px; }
+  .cm-meta b { color:var(--ink); font-weight:700; }
+  .cm-act { border:none; background:none; color:var(--red); font-size:10.5px; cursor:pointer; padding:0 4px; font-family:inherit; text-decoration:underline; }
+  .cm-input { display:flex; gap:8px; margin-top:10px; }
+  .cm-input input { flex:1; border-radius:999px; padding:11px 16px; font-size:16px; }
+  .cm-input button { border:none; background:var(--violet); color:#fff; border-radius:50%; width:44px; height:44px; font-size:15px; cursor:pointer; flex:none; }
+  #cmStatus { font-size:12.5px; color:var(--red-ink); min-height:16px; margin-top:6px; }
+
+  /* ===== mobile first: the majority platform ===== */
+  @media (max-width:640px){
+    body { padding:12px; }
+    .card { padding:14px; border-radius:14px; }
+    details.section .inner { padding:14px; }
+    h1 { font-size:20px; }
+    .hdr-right { gap:6px; }
+    .iconbtn { padding:8px 10px; }
+    input[type="text"], input[type="email"], input[type="password"], textarea { font-size:16px; } /* stops iOS zoom-on-focus */
+    .addrow input[type="text"] { padding:12px 14px; }
+    .addbtn { padding:0 20px; min-height:46px; }
+    .navbtn { width:38px; height:38px; }
+    .todaybtn, .planbtn { padding:9px 13px; }
+    button.check { width:28px; height:28px; }
+    ul.qlist li { padding:13px 11px; }
+    .del { opacity:.55; } /* no hover on touch — keep delete reachable */
+    .streaknum { font-size:30px; }
+    .wtile .wn { font-size:24px; }
+    .levelbadge { font-size:15px; padding:10px 13px; }
+    .f-time { font-size:64px; }
+    #aiPanel { right:8px; left:8px; width:auto; bottom:84px; height:min(65vh,540px); }
+    #aiBubble { right:14px; bottom:14px; }
+    .fb-wrap { padding-bottom:24px; }
+    #tipBox { max-width:86vw; }
+  }
 </style>
 </head>
 <body>
@@ -267,7 +341,7 @@
 <!-- auth -->
 <div id="authOverlay">
   <div class="authcard">
-    <h2>🤝 Accountability Partner</h2>
+    <h2>Accountability Partner</h2>
     <p class="as">Your virtual accountability partner — goals, streaks, and an honest AI companion that plans with you. Free.</p>
     <div id="authLogin">
       <label>Email</label><input type="email" id="liEmail" autocomplete="email">
@@ -311,9 +385,10 @@
 
 <div class="wrap" id="appWrap" style="display:none;">
   <header class="top">
-    <h1>🤝 Accountability Partner</h1>
+    <h1>Accountability Partner</h1>
     <div class="hdr-right">
       <span class="sub" id="syncStatus"><span class="syncdot"></span>synced</span>
+      <button id="fbBtn" class="iconbtn">💬 Feedback</button>
       <button id="themeToggle" class="iconbtn" aria-label="Toggle theme">🌙</button>
       <button id="logoutBtn" class="iconbtn">Log out</button>
     </div>
@@ -370,8 +445,13 @@
 
   <div class="section-title">🟩 Productivity grid · darker = more done</div>
   <div class="card">
-    <div class="ghmonths" id="ghMonths"></div>
-    <div class="ghscroll"><div class="ghgrid" id="ghGrid"></div></div>
+    <div class="ghlayout">
+      <div class="ghdays" aria-hidden="true"><span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span></div>
+      <div class="ghscroll" id="ghScroll">
+        <div class="ghmonths" id="ghMonths"></div>
+        <div class="ghgrid" id="ghGrid"></div>
+      </div>
+    </div>
     <div class="ghfoot">
       <span id="gridCaption"></span>
       <span class="ghlegend">Less <i class="ghc"></i><i class="ghc l1"></i><i class="ghc l2"></i><i class="ghc l3"></i><i class="ghc l4"></i> More</span>
@@ -400,7 +480,7 @@
   </details>
 
   <div class="motto" id="motto"></div>
-  <footer>Progress syncs to your account — pick up on any device. 🤖 = your AI accountability partner. · <a id="fbLink">💬 Feedback &amp; the science behind this</a></footer>
+  <footer>Syncs to your account — pick up on any device · <a id="fbLink">Feedback &amp; the science behind this</a></footer>
 </div>
 
 <!-- feedback page -->
@@ -412,6 +492,17 @@
     <textarea id="fbText" maxlength="2000" placeholder="Be blunt — brutal feedback is the most useful kind."></textarea>
     <div><button class="fb-send" id="fbSend">Send feedback</button></div>
     <div id="fbStatus"></div>
+    <div class="cm-sec">
+      <h3>🗣️ Community</h3>
+      <p class="cm-sub">Talk with fellow climbers — fully anonymous. You appear under a pseudonym; your email and identity are never shown to anyone.</p>
+      <div id="cmMe"></div>
+      <div id="cmLog"></div>
+      <div class="cm-input">
+        <input type="text" id="cmText" maxlength="400" placeholder="Say something to the community…">
+        <button id="cmSend" aria-label="Send">➤</button>
+      </div>
+      <div id="cmStatus"></div>
+    </div>
     <div class="fb-const">
       <h3>📜 The science Accountability Partner is built on</h3>
       <p>Long preparations (exams, big goals) follow three psychological phases. This app — and your AI partner — are designed around them.</p>
@@ -514,14 +605,15 @@ const Auth = {
 
 /* ---------------- Api ---------------- */
 const Api = {
-  async call(method, path, body){
+  async call(method, path, body, signal, retried){
     const tok = await Auth.token();
     if (!tok) throw new Error("not logged in");
     const res = await fetch(CONFIG.api + path, {
       method, headers:{ "Authorization":"Bearer "+tok, "Content-Type":"application/json" },
-      body: body ? JSON.stringify(body) : undefined
+      body: body ? JSON.stringify(body) : undefined,
+      signal
     });
-    if (res.status === 401){ await Auth.refresh(); return this.call(method, path, body); }
+    if (res.status === 401 && !retried){ await Auth.refresh(); return this.call(method, path, body, signal, true); }
     return res;
   }
 };
@@ -700,15 +792,24 @@ const UI = {
 const Grid = {
   render(){
     const q = Store.state.quests;
-    const WEEKS = 26;
+    const CELL = 15, MGAP = 9; // 12px cell + 3px margin; gap between months
     const today = new Date(); today.setHours(0,0,0,0);
     const sun = new Date(today); sun.setDate(today.getDate() - today.getDay());
+    // Start at the user's journey, not an arbitrary window — no empty months before signup.
+    let firstIso = Store.state.goals.startDate || TODAY;
+    for (const k in q){ if (q[k] && q[k].length && k < firstIso) firstIso = k; }
+    const first = new Date(firstIso + "T00:00:00");
+    const firstSun = new Date(first); firstSun.setDate(first.getDate() - first.getDay());
+    let WEEKS = Math.round((sun - firstSun) / (7*86400000)) + 1;
+    WEEKS = Math.max(12, Math.min(26, WEEKS));
     const start = new Date(sun); start.setDate(sun.getDate() - (WEEKS-1)*7);
-    const cells = [], colMonth = [];
     let bestKey = null, bestCount = 0;
+    const weeksHtml = [], colMonth = [];
     for (let w = 0; w < WEEKS; w++){
       const col0 = new Date(start); col0.setDate(start.getDate() + w*7);
       colMonth.push(col0.getMonth());
+      const gap = w > 0 && colMonth[w] !== colMonth[w-1];
+      const cells = [];
       for (let r = 0; r < 7; r++){
         const d = new Date(start); d.setDate(start.getDate() + w*7 + r);
         const key = iso(d);
@@ -721,16 +822,19 @@ const Grid = {
         const cls = "ghc" + (lvl ? " l"+lvl : "") + (future ? " future" : "") + (key===TODAY ? " today" : "") + (key===State.selected ? " sel" : "");
         cells.push(`<div class="${cls}" data-date="${key}" role="button" tabindex="0" aria-label="${title}" title="${title}"></div>`);
       }
+      weeksHtml.push(`<div class="ghweek${gap ? " mgap" : ""}">${cells.join("")}</div>`);
     }
-    $("ghGrid").innerHTML = cells.join("");
+    $("ghGrid").innerHTML = weeksHtml.join("");
     let labels = "", w = 0;
     while (w < WEEKS){
-      let c = w+1;
+      let c = w + 1;
       while (c < WEEKS && colMonth[c] === colMonth[w]) c++;
-      labels += `<span style="width:${(c-w)*16}px">${MONTHS[colMonth[w]]}</span>`;
+      const lead = w > 0 ? MGAP : 0;
+      labels += `<span style="width:${(c-w)*CELL + lead}px;${lead ? "padding-left:"+lead+"px;" : ""}">${MONTHS[colMonth[w]]}</span>`;
       w = c;
     }
     $("ghMonths").innerHTML = labels;
+    const sc = $("ghScroll"); sc.scrollLeft = sc.scrollWidth; // land on the present, like GitHub
     $("gridCaption").textContent = (bestKey && bestCount > 0)
       ? `🔥 Most productive: ${new Date(bestKey+"T00:00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})} — ${bestCount} quest${bestCount>1?"s":""}`
       : "Complete quests to light up the grid.";
@@ -810,6 +914,7 @@ const Quests = {
     badge.className = "badge " + (isToday ? "today" : isFuture ? "future" : "past");
     badge.textContent = isToday ? "Today" : isFuture ? "Upcoming" : "Past";
     $("datePicker").value = sel;
+    $("datePicker").min = Store.state.goals.startDate || "";
     $("addRow").style.display = isPast ? "none" : "flex";
     $("roNote").style.display = isPast ? "block" : "none";
     if (isPast) $("roNote").textContent = "Past day — the record. Backfill a tick if you actually did it; adding/deleting is closed.";
@@ -1065,7 +1170,7 @@ THE CONSTITUTION you operate on (exam-prep psychology):
 - Self-Determination Theory: protect Autonomy (they choose; you shape plans into SMART, finishable-today quests — small and immediate beats hyperbolic discounting), Competence (coach active recall over rereading, a mistake register in end-of-day notes, sleep for memory consolidation), Relatedness (you are the partner; after slips push self-compassion + restart, never shame spirals).
 - Hard days toolkit: friction design for distractions, urge surfing, progressive muscle relaxation, exercise.
 USER DATA: name: ${uname ? `"${uname}" (address them by name)` : "UNKNOWN — ask what to call them, then save it with set_name"}, preparing for / long-term goal: "${s.goals.longTerm||"UNKNOWN — ask them what exam/goal they are preparing for"}", target date: ${s.goals.targetDate||"not set"}${ph ? `, journey: day ${ph.dayN}/${ph.total} (Phase ${ph.n}: ${ph.name})` : ""}, weekly goal: "${s.goals.weekGoal||"not set"}", current streak: ${Calc.streak()} days, last 7 days: ${done7} quests done / ${missed7} missed, today's quests: ${todays}. Milestones: ${miles}.
-YOUR CHARACTER: an honest companion, not a cheerleader. Warm but blunt. When the record is good, name it specifically. When they keep missing tasks, deliver the brutal truth plainly — e.g. "That's ${missed7} misses this week. The people you're competing against did those reps. This is exactly how the 99% who fail, fail." — then IMMEDIATELY give the smallest next rep to restart. Attack the pattern, never the person. Reference their phase, streak and misses so they feel seen. You help with: turning plans into concrete daily quests (SMART: specific, finishable in a day), breaking long-term goals into milestones, writing honest end-of-day notes (include what was missed and one lesson — a mistake register), and completing items they say they did.
+YOUR CHARACTER: an honest companion, not a cheerleader. Warm but blunt. When the record is good, name it specifically. When they keep missing tasks, deliver the brutal truth plainly — e.g. "That's ${missed7} misses this week. The people you're competing against did those reps. This is exactly how the 99% who fail, fail." — then IMMEDIATELY give the smallest next rep to restart. Attack the pattern, never the person. Reference their phase, streak and misses so they feel seen. You help with: turning plans into concrete daily quests (SMART: specific, finishable in a day), breaking long-term goals into milestones, writing honest end-of-day notes (include what was missed and one lesson — a mistake register), completing items they say they did, and sending app feedback to the maker (via send_feedback; feedback can also be sent from the Feedback button in the header). If asked where feedback goes or who reads it: it is stored privately in the app's database and read directly by the maker — every note is seen.
 You MUST reply with ONLY a JSON object, no markdown, in this exact shape:
 {"say":"your short conversational reply","actions":[...]}
 Allowed actions (use only when appropriate, else empty array):
@@ -1078,6 +1183,7 @@ Allowed actions (use only when appropriate, else empty array):
 {"type":"set_name","name":"what to call the user"}
 {"type":"remove_quests","date":"YYYY-MM-DD","items":["substring of quest text"]} (today/future only)
 {"type":"remove_milestones","items":["substring"]}
+{"type":"send_feedback","text":"feedback for the app maker"} (when the user wants to report a bug, suggestion or complaint about the app — draft it from their words and send it)
 Rules: keep "say" under 60 words. Split vague plans into 1-4 concrete quests. When asked to summarize the day, look at done/open quests above and write an honest, kind note via set_note. Never invent completions the user didn't state.`;
   },
   async send(text){
@@ -1086,23 +1192,31 @@ Rules: keep "say" under 60 words. Split vague plans into 1-4 concrete quests. Wh
     this.history.push({ role:"user", text });
     $("aiText").value = "";
     const typing = document.createElement("div");
-    typing.className = "ai-typing"; typing.textContent = "thinking…";
+    typing.className = "ai-typing"; typing.innerHTML = "<i></i><i></i><i></i>";
     $("aiLog").appendChild(typing);
-    try {
-      const res = await Api.call("POST", "/ai", { system:this.system(), messages:this.history.slice(-8) });
-      const j = await res.json().catch(() => ({}));
-      typing.remove();
-      if (!res.ok){ this.msg("sys", j.error || "Assistant unavailable right now."); return; }
-      let out;
-      try { out = JSON.parse(j.text); } catch(e){ out = { say:j.text, actions:[] }; }
-      this.apply(out.actions || []);
-      const say = out.say || "Done.";
-      this.msg("bot", say);
-      this.history.push({ role:"assistant", text: say });
-    } catch(e){
-      typing.remove();
-      this.msg("sys", "Couldn't reach the assistant — check your connection.");
+    $("aiLog").scrollTop = $("aiLog").scrollHeight;
+    const payload = { system:this.system(), messages:this.history.slice(-8) };
+    let res = null, j = null;
+    for (let attempt = 0; attempt < 2; attempt++){
+      try {
+        const ctl = new AbortController();
+        const timer = setTimeout(() => ctl.abort(), 35000);
+        res = await Api.call("POST", "/ai", payload, ctl.signal);
+        clearTimeout(timer);
+        j = await res.json().catch(() => ({}));
+        if (res.ok || res.status === 429 || res.status === 501) break; // retrying won't change these
+      } catch(e){ res = null; }
+      if (attempt === 0) await new Promise(r => setTimeout(r, 800));
     }
+    typing.remove();
+    if (!res){ this.msg("sys", "Can't reach your partner right now — check your connection and try again."); return; }
+    if (!res.ok){ this.msg("sys", (j && j.error) || "Your partner couldn't respond just now — try again in a moment."); return; }
+    let out;
+    try { out = JSON.parse(j.text); } catch(e){ out = { say:j.text, actions:[] }; }
+    this.apply(out.actions || []);
+    const say = out.say || "Done.";
+    this.msg("bot", say);
+    this.history.push({ role:"assistant", text: say });
   },
   apply(actions){
     for (const a of actions){
@@ -1148,6 +1262,9 @@ Rules: keep "say" under 60 words. Split vague plans into 1-4 concrete quests. Wh
             if (i > -1){ items.splice(i,1); n++; }
           });
           if (n){ Store.setDay(date, items); this.act(`Removed ${n} quest${n>1?"s":""}`); }
+        } else if (a.type === "send_feedback"){
+          const txt = String(a.text || "").slice(0, 2000).trim();
+          if (txt){ Feedback.submit(txt); this.act("Feedback sent to the maker — thank you"); }
         } else if (a.type === "remove_milestones"){
           let n = 0;
           (a.items||[]).slice(0,8).forEach(t => {
@@ -1170,18 +1287,98 @@ Rules: keep "say" under 60 words. Split vague plans into 1-4 concrete quests. Wh
 
 /* ---------------- Feedback page ---------------- */
 const Feedback = {
-  open(){ $("fbOverlay").classList.add("open"); $("fbStatus").textContent = ""; },
-  close(){ $("fbOverlay").classList.remove("open"); },
+  QKEY:"qb_fb_queue",
+  queued(){ try { return JSON.parse(localStorage.getItem(this.QKEY)) || []; } catch(e){ return []; } },
+  setQueue(q){ try { localStorage.setItem(this.QKEY, JSON.stringify(q)); } catch(e){} },
+  open(){ $("fbOverlay").classList.add("open"); $("fbStatus").textContent = ""; Community.start(); },
+  close(){ $("fbOverlay").classList.remove("open"); Community.stop(); },
+  async post(text){
+    const res = await Api.call("POST", "/feedback", { text });
+    return res.ok;
+  },
+  // Never lose a submission: 3 attempts with backoff, then an offline queue flushed on next load.
+  async submit(text){
+    let ok = false;
+    for (let i = 0; i < 3 && !ok; i++){
+      try { ok = await this.post(text); } catch(e){ ok = false; }
+      if (!ok && i < 2) await new Promise(r => setTimeout(r, 700*(i+1)));
+    }
+    if (!ok) this.setQueue([...this.queued(), { text, at: new Date().toISOString() }]);
+    return ok;
+  },
   async send(){
     const t = $("fbText").value.trim();
-    if (!t){ $("fbStatus").textContent = "Write something first 🙂"; return; }
+    if (!t){ $("fbStatus").textContent = "Write something first."; return; }
     $("fbSend").disabled = true; $("fbStatus").textContent = "Sending…";
-    try {
-      const res = await Api.call("POST", "/feedback", { text: t });
-      if (res.ok){ $("fbText").value = ""; $("fbStatus").textContent = "✓ Received — thank you. Every note shapes the next version."; }
-      else $("fbStatus").textContent = "Couldn't send right now — try again in a bit.";
-    } catch(e){ $("fbStatus").textContent = "Couldn't send — check your connection."; }
+    const ok = await this.submit(t);
+    if (ok){
+      $("fbText").value = "";
+      $("fbStatus").textContent = "✓ Received — thank you. Every note shapes the next version.";
+    } else {
+      $("fbText").value = "";
+      $("fbStatus").textContent = "✓ Saved on this device — it will send automatically once you're back online.";
+    }
     $("fbSend").disabled = false;
+  },
+  async flush(){
+    const q = this.queued(); if (!q.length) return;
+    const left = [];
+    for (const item of q){
+      let ok = false;
+      try { ok = await this.post("[queued " + item.at + "] " + item.text); } catch(e){}
+      if (!ok) left.push(item);
+    }
+    this.setQueue(left);
+  }
+};
+
+/* ---------------- Community chat (anonymous) ---------------- */
+const Community = {
+  timer:null, admin:false, loaded:false,
+  start(){
+    this.load();
+    clearInterval(this.timer);
+    this.timer = setInterval(() => {
+      if ($("fbOverlay").classList.contains("open")) this.load();
+    }, 15000);
+  },
+  stop(){ clearInterval(this.timer); this.timer = null; },
+  async load(){
+    try {
+      const res = await Api.call("GET", "/community");
+      if (!res.ok) return;
+      const j = await res.json();
+      this.admin = !!(j.me && j.me.admin);
+      $("cmMe").textContent = "You appear as: " + ((j.me && j.me.name) || "…") + (this.admin ? " · admin" : "");
+      this.render(j.messages || []);
+      this.loaded = true;
+    } catch(e){}
+  },
+  render(list){
+    const log = $("cmLog");
+    const atBottom = !this.loaded || log.scrollTop + log.clientHeight >= log.scrollHeight - 40;
+    log.innerHTML = list.length ? list.map(m => `
+      <div class="cm-msg${m.mine ? " mine" : ""}">
+        <div class="cm-meta"><b>${esc(m.name)}</b> · ${m.at ? new Date(m.at).toLocaleString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}) : ""}${this.admin ? ` <button class="cm-act" data-cmdel="${esc(m.id)}">delete</button><button class="cm-act" data-cmban="${esc(m.aid)}">ban</button>` : ""}</div>
+        <div>${esc(m.text)}</div>
+      </div>`).join("") : '<div class="empty">No messages yet — say hi.</div>';
+    if (atBottom) log.scrollTop = log.scrollHeight;
+  },
+  async post(){
+    const t = $("cmText").value.trim();
+    if (!t) return;
+    $("cmSend").disabled = true; $("cmStatus").textContent = "";
+    try {
+      const res = await Api.call("POST", "/community", { text: t });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok){ $("cmText").value = ""; await this.load(); }
+      else $("cmStatus").textContent = j.error || "Couldn't post — try again.";
+    } catch(e){ $("cmStatus").textContent = "Couldn't post — check your connection."; }
+    $("cmSend").disabled = false;
+    setTimeout(() => { $("cmStatus").textContent = ""; }, 5000);
+  },
+  async act(action, payload){
+    try { await Api.call("POST", "/community", { action, ...payload }); await this.load(); } catch(e){}
   }
 };
 
@@ -1291,8 +1488,18 @@ const App = {
     $("taskInput").addEventListener("keydown", e => { if (e.key === "Enter"){ if (Quests.add($("taskInput").value)){ $("taskInput").value = ""; App.render(); } } });
     $("mileBtn").addEventListener("click", () => { if (Miles.add($("mileInput").value)){ $("mileInput").value = ""; App.render(); } });
     $("mileInput").addEventListener("keydown", e => { if (e.key === "Enter"){ if (Miles.add($("mileInput").value)){ $("mileInput").value = ""; App.render(); } } });
-    $("datePicker").addEventListener("change", e => { State.selected = e.target.value || TODAY; App.render(); });
-    $("prevDay").addEventListener("click", () => { const d = new Date(State.selected+"T00:00:00"); d.setDate(d.getDate()-1); State.selected = iso(d); App.render(); });
+    const journeyStart = () => (Store.state && Store.state.goals.startDate) || TODAY;
+    $("datePicker").addEventListener("change", e => {
+      let v = e.target.value || TODAY;
+      if (v < journeyStart()){ v = journeyStart(); FX.toast("Your journey starts " + prettyDate(v) + " — nothing before that."); }
+      State.selected = v; App.render();
+    });
+    $("prevDay").addEventListener("click", () => {
+      const d = new Date(State.selected+"T00:00:00"); d.setDate(d.getDate()-1);
+      const k = iso(d);
+      if (k < journeyStart()){ FX.toast("Your journey starts " + prettyDate(journeyStart()) + " — nothing before that."); return; }
+      State.selected = k; App.render();
+    });
     $("nextDay").addEventListener("click", () => { const d = new Date(State.selected+"T00:00:00"); d.setDate(d.getDate()+1); State.selected = iso(d); App.render(); });
     $("todayBtn").addEventListener("click", () => { State.selected = TODAY; App.render(); });
     $("planBtn").addEventListener("click", () => { const d = new Date(TODAY+"T00:00:00"); d.setDate(d.getDate()+1); State.selected = iso(d); App.render(); $("taskInput").focus(); });
@@ -1311,6 +1518,16 @@ const App = {
     $("fPause").addEventListener("click", () => Focus.pauseResume());
     $("fQuit").addEventListener("click", () => Focus.abandon());
     $("fbLink").addEventListener("click", () => Feedback.open());
+    $("fbBtn").addEventListener("click", () => Feedback.open());
+    $("cmSend").addEventListener("click", () => Community.post());
+    $("cmText").addEventListener("keydown", e => { if (e.key === "Enter") Community.post(); });
+    $("cmLog").addEventListener("click", e => {
+      const btn = e.target.closest(".cm-act");
+      if (!btn) return;
+      if (btn.dataset.armed !== "1"){ btn.dataset.armed = "1"; btn.textContent = "sure?"; return; } // two-tap confirm
+      if (btn.dataset.cmdel) Community.act("delete", { id: btn.dataset.cmdel });
+      else if (btn.dataset.cmban) Community.act("ban", { aid: btn.dataset.cmban });
+    });
     $("fbBack").addEventListener("click", () => Feedback.close());
     $("fbSend").addEventListener("click", () => Feedback.send());
     $("aiBubble").addEventListener("click", () => $("aiPanel").classList.contains("open") ? Assistant.close() : Assistant.open());
@@ -1337,11 +1554,12 @@ const App = {
     this.render();
     Focus.restore();
     Assistant.nudge();
+    Feedback.flush();
     this.greet();
     Tour.maybeStart(() => {
       if (!Store.state.goals.longTerm){
         Assistant.open();
-        Assistant.msg("bot", "Hey — I'm your accountability partner. 🤝 I'm here to keep you honest about the work, not just cheer. Let's set up: what should I call you, what are you preparing for (exam, goal, mission), and when's the date? I'll build your board around it.");
+        Assistant.msg("bot", "Hey — I'm your accountability partner. I'm here to keep you honest about the work, not just cheer. Let's set up: what should I call you, what are you preparing for (exam, goal, mission), and when's the date? I'll build your board around it.");
         Assistant.history.push({ role:"assistant", text:"Asked user their name, what they're preparing for, and their deadline to set up the board." });
       }
     });

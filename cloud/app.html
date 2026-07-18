@@ -296,16 +296,21 @@
   .cm-sec h3 { font-size:16px; margin:0 0 4px; letter-spacing:-.01em; }
   .cm-sub { color:var(--muted); font-size:12.5px; margin:0 0 12px; }
   #cmMe { font-size:12px; color:var(--blue-ink); background:var(--soft-blue); border:1px solid var(--soft-blue-border); border-radius:999px; padding:4px 12px; display:inline-block; margin-bottom:10px; }
-  #cmLog { max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding:4px 2px; }
-  .cm-msg { border:1px solid var(--line); border-radius:12px; padding:9px 12px; background:var(--card); font-size:13.5px; line-height:1.45; word-break:break-word; }
-  .cm-msg.mine { background:var(--accent-soft); border-color:var(--accent-border); }
-  .cm-meta { font-size:11px; color:var(--muted); margin-bottom:3px; }
-  .cm-meta b { color:var(--ink); font-weight:700; }
+  #cmLog { max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding:6px 2px; }
+  .cm-row { display:flex; flex-direction:column; align-items:flex-start; max-width:80%; }
+  .cm-row.mine { align-self:flex-end; align-items:flex-end; }
+  .cm-who { font-size:10.5px; color:var(--muted); margin:0 10px 3px; }
+  .cm-who b { color:var(--ink); font-weight:700; }
+  .cm-bubble { padding:9px 14px; border-radius:18px; border-bottom-left-radius:5px; background:var(--track); color:var(--ink); font-size:14px; line-height:1.4; word-break:break-word; }
+  .cm-row.mine .cm-bubble { background:#0a84ff; color:#fff; border-bottom-left-radius:18px; border-bottom-right-radius:5px; }
   .cm-act { border:none; background:none; color:var(--red); font-size:10.5px; cursor:pointer; padding:0 4px; font-family:inherit; text-decoration:underline; }
   .cm-input { display:flex; gap:8px; margin-top:10px; }
   .cm-input input { flex:1; border-radius:999px; padding:11px 16px; font-size:16px; }
   .cm-input button { border:none; background:var(--violet); color:#fff; border-radius:50%; width:44px; height:44px; font-size:15px; cursor:pointer; flex:none; }
   #cmStatus { font-size:12.5px; color:var(--red-ink); min-height:16px; margin-top:6px; }
+  .cm-name { display:flex; gap:8px; margin-bottom:10px; }
+  .cm-name input { flex:1; border-radius:10px; padding:9px 13px; font-size:16px; }
+  .cm-name button { border:1px solid var(--soft-blue-border); background:var(--soft-blue); color:var(--blue-ink); border-radius:10px; padding:0 14px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; flex:none; }
 
   /* ===== mobile first: the majority platform ===== */
   @media (max-width:640px){
@@ -496,6 +501,10 @@
       <h3>🗣️ Community</h3>
       <p class="cm-sub">Talk with fellow climbers — fully anonymous. You appear under a pseudonym; your email and identity are never shown to anyone.</p>
       <div id="cmMe"></div>
+      <div class="cm-name" id="cmNameRow" style="display:none;">
+        <input type="text" id="cmNameInput" maxlength="20" placeholder="Pick your community name — one time only">
+        <button id="cmNameBtn">Set name</button>
+      </div>
       <div id="cmLog"></div>
       <div class="cm-input">
         <input type="text" id="cmText" maxlength="400" placeholder="Say something to the community…">
@@ -1350,18 +1359,36 @@ const Community = {
       const j = await res.json();
       this.admin = !!(j.me && j.me.admin);
       $("cmMe").textContent = "You appear as: " + ((j.me && j.me.name) || "…") + (this.admin ? " · admin" : "");
+      $("cmNameRow").style.display = (j.me && !j.me.custom) ? "flex" : "none";
       this.render(j.messages || []);
       this.loaded = true;
     } catch(e){}
   },
+  async setName(){
+    const n = $("cmNameInput").value.trim();
+    if (!n) return;
+    $("cmNameBtn").disabled = true; $("cmStatus").textContent = "";
+    try {
+      const res = await Api.call("POST", "/community", { action:"setname", name:n });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok){ $("cmNameInput").value = ""; await this.load(); }
+      else $("cmStatus").textContent = j.error || "Couldn't set the name.";
+    } catch(e){ $("cmStatus").textContent = "Couldn't set the name — connection."; }
+    $("cmNameBtn").disabled = false;
+    setTimeout(() => { $("cmStatus").textContent = ""; }, 5000);
+  },
   render(list){
     const log = $("cmLog");
     const atBottom = !this.loaded || log.scrollTop + log.clientHeight >= log.scrollHeight - 40;
-    log.innerHTML = list.length ? list.map(m => `
-      <div class="cm-msg${m.mine ? " mine" : ""}">
-        <div class="cm-meta"><b>${esc(m.name)}</b> · ${m.at ? new Date(m.at).toLocaleString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}) : ""}${this.admin ? ` <button class="cm-act" data-cmdel="${esc(m.id)}">delete</button><button class="cm-act" data-cmban="${esc(m.aid)}">ban</button>` : ""}</div>
-        <div>${esc(m.text)}</div>
-      </div>`).join("") : '<div class="empty">No messages yet — say hi.</div>';
+    log.innerHTML = list.length ? list.map(m => {
+      const when = m.at ? new Date(m.at).toLocaleString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}) : "";
+      const acts = `${(this.admin || m.mine) ? ` <button class="cm-act" data-cmdel="${esc(m.id)}">delete</button>` : ""}${(this.admin && !m.mine) ? ` <button class="cm-act" data-cmban="${esc(m.aid)}">ban</button>` : ""}`;
+      return `
+      <div class="cm-row${m.mine ? " mine" : ""}">
+        <div class="cm-who">${m.mine ? "" : `<b>${esc(m.name)}</b> · `}${when}${acts}</div>
+        <div class="cm-bubble">${esc(m.text)}</div>
+      </div>`;
+    }).join("") : '<div class="empty">No messages yet — say hi.</div>';
     if (atBottom) log.scrollTop = log.scrollHeight;
   },
   async post(){
@@ -1521,6 +1548,8 @@ const App = {
     $("fbBtn").addEventListener("click", () => Feedback.open());
     $("cmSend").addEventListener("click", () => Community.post());
     $("cmText").addEventListener("keydown", e => { if (e.key === "Enter") Community.post(); });
+    $("cmNameBtn").addEventListener("click", () => Community.setName());
+    $("cmNameInput").addEventListener("keydown", e => { if (e.key === "Enter") Community.setName(); });
     $("cmLog").addEventListener("click", e => {
       const btn = e.target.closest(".cm-act");
       if (!btn) return;

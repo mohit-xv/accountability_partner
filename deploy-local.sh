@@ -63,6 +63,8 @@ deploy_stack(){ # $1 = comma-joined allowed CORS origins ("" = template default 
   local PARAMS=()
   [ -n "${GEMINI_API_KEY:-}" ] && PARAMS+=("GeminiApiKey=$GEMINI_API_KEY")
   [ -n "${ADMIN_EMAIL:-}" ] && PARAMS+=("AdminEmail=$ADMIN_EMAIL")
+  [ -n "${TG_TOKEN:-}" ] && PARAMS+=("TgToken=$TG_TOKEN")
+  [ -n "${TG_CHAT:-}" ] && PARAMS+=("TgChat=$TG_CHAT")
   if [ -n "$KNOWN_BUCKET" ]; then
     PARAMS+=("SiteDomain=$KNOWN_BUCKET.s3-website.$REGION.amazonaws.com")
     [ -n "$1" ] && PARAMS+=("SiteOrigin=$1")

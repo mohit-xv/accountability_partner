@@ -27,6 +27,15 @@ Parameters:
     Type: String
     Default: ""
     Description: Email of the community-chat admin (can delete messages and ban users)
+  TgToken:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Telegram bot token for feedback notifications (blank = disabled)
+  TgChat:
+    Type: String
+    Default: ""
+    Description: Telegram chat id to send feedback notifications to
 
 Conditions:
   HasSite: !Not [!Equals [!Ref SiteDomain, ""]]
@@ -98,7 +107,7 @@ Resources:
       Timeout: 10
       Role: !GetAtt FnRole.Arn
       Environment:
-        Variables: { TABLE: !Ref StateTable, ADMIN: !Ref AdminEmail }
+        Variables: { TABLE: !Ref StateTable, ADMIN: !Ref AdminEmail, TG_TOKEN: !Ref TgToken, TG_CHAT: !Ref TgChat }
       Code: lambda/state
 
   AiFn:

@@ -1,0 +1,315 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Quest Board full-stack backend - Cognito auth, DynamoDB state, Lambda API, AI assistant proxy
+
+Parameters:
+  GeminiApiKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Google AI Studio key for the assistant (blank = assistant disabled)
+  AiDailyLimit:
+    Type: String
+    Default: "30"
+    Description: Max AI calls per user per day
+  ModelId:
+    Type: String
+    Default: "gemini-flash-latest"
+    Description: Gemini model id (auto-tracks the current flash model)
+  SiteOrigin:
+    Type: CommaDelimitedList
+    Default: "*"
+    Description: Allowed CORS origins (CDN + S3 website URL; * until the bucket exists)
+  SiteDomain:
+    Type: String
+    Default: ""
+    Description: S3 website domain to front with CloudFront (blank = no CDN yet)
+
+Conditions:
+  HasSite: !Not [!Equals [!Ref SiteDomain, ""]]
+
+Resources:
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: questboard-users
+      UsernameAttributes: [email]
+      AutoVerifiedAttributes: [email]
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: false
+          RequireSymbols: false
+          RequireNumbers: false
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: questboard-web
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      RefreshTokenValidity: 30
+
+  StateTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: questboard-state
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+
+  FnRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ddb
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem]
+                Resource: !GetAtt StateTable.Arn
+
+  StateFn:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: questboard-state
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Timeout: 10
+      Role: !GetAtt FnRole.Arn
+      Environment:
+        Variables: { TABLE: !Ref StateTable }
+      Code:
+        ZipFile: |
+          const {DynamoDBClient,GetItemCommand,PutItemCommand}=require("@aws-sdk/client-dynamodb");
+          const c=new DynamoDBClient({});
+          const T=process.env.TABLE;
+          exports.handler=async(e)=>{
+            const cl=e.requestContext&&e.requestContext.authorizer&&e.requestContext.authorizer.jwt&&e.requestContext.authorizer.jwt.claims;
+            const sub=cl&&cl.sub;
+            if(!sub)return{statusCode:401,body:"unauthorized"};
+            const m=e.requestContext.http.method,p=e.rawPath||"";
+            try{
+              const b=e.isBase64Encoded?Buffer.from(e.body||"",'base64').toString('utf8'):(e.body||"{}");
+              if(p==="/feedback"&&m==="POST"){
+                const txt=String((JSON.parse(b)||{}).text||"").slice(0,2000).trim();
+                if(!txt)return{statusCode:400,body:"empty"};
+                const now=new Date().toISOString();
+                await c.send(new PutItemCommand({TableName:T,Item:{pk:{S:"fb#"+now+"#"+sub.slice(0,8)},text:{S:txt},email:{S:String(cl.email||"")},at:{S:now}}}));
+                return{statusCode:200,headers:{"content-type":"application/json"},body:"{\"ok\":true}"};
+              }
+              if(m==="GET"){
+                const r=await c.send(new GetItemCommand({TableName:T,Key:{pk:{S:sub}}}));
+                return{statusCode:200,headers:{"content-type":"application/json"},body:r.Item&&r.Item.state?r.Item.state.S:"{}"};
+              }
+              if(m==="PUT"){
+                if(b.length>380000)return{statusCode:413,body:"state too large"};
+                JSON.parse(b);
+                await c.send(new PutItemCommand({TableName:T,Item:{pk:{S:sub},state:{S:b},updatedAt:{S:new Date().toISOString()}}}));
+                return{statusCode:200,headers:{"content-type":"application/json"},body:"{\"ok\":true}"};
+              }
+              return{statusCode:405,body:""};
+            }catch(err){
+              return{statusCode:err instanceof SyntaxError?400:500,body:"error"};
+            }
+          };
+
+  AiFn:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: questboard-ai
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Timeout: 25
+      Role: !GetAtt FnRole.Arn
+      Environment:
+        Variables:
+          TABLE: !Ref StateTable
+          GKEY: !Ref GeminiApiKey
+          LIMIT: !Ref AiDailyLimit
+          MODEL: !Ref ModelId
+      Code:
+        ZipFile: |
+          const {DynamoDBClient,UpdateItemCommand}=require("@aws-sdk/client-dynamodb");
+          const c=new DynamoDBClient({});
+          const T=process.env.TABLE,K=process.env.GKEY,L=parseInt(process.env.LIMIT||"30",10);
+          const r=(s,o)=>({statusCode:s,headers:{"content-type":"application/json"},body:JSON.stringify(o)});
+          exports.handler=async(e)=>{
+            const cl=e.requestContext&&e.requestContext.authorizer&&e.requestContext.authorizer.jwt&&e.requestContext.authorizer.jwt.claims;
+            const sub=cl&&cl.sub;
+            if(!sub)return r(401,{error:"unauthorized"});
+            if(!K)return r(501,{error:"assistant not configured"});
+            const day=new Date().toISOString().slice(0,10);
+            try{
+              const u=await c.send(new UpdateItemCommand({TableName:T,Key:{pk:{S:sub+"#ai#"+day}},UpdateExpression:"ADD n :o",ExpressionAttributeValues:{":o":{N:"1"}},ReturnValues:"UPDATED_NEW"}));
+              if(parseInt(u.Attributes.n.N,10)>L)return r(429,{error:"Daily assistant limit reached - resets at midnight UTC."});
+            }catch(err){}
+            let b;
+            try{b=JSON.parse(e.isBase64Encoded?Buffer.from(e.body||"","base64").toString("utf8"):(e.body||"{}"));}
+            catch(_){return r(400,{error:"bad json"});}
+            const sys=String(b.system||"").slice(0,9000);
+            const msgs=Array.isArray(b.messages)?b.messages.slice(-12):[];
+            const contents=msgs.map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:String(m.text||"").slice(0,4000)}]}));
+            if(!contents.length)return r(400,{error:"no messages"});
+            const resp=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+(process.env.MODEL||"gemini-2.0-flash")+":generateContent?key="+K,{
+              method:"POST",headers:{"content-type":"application/json"},
+              body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents,generationConfig:{temperature:0.4,maxOutputTokens:2048,responseMimeType:"application/json"}})
+            });
+            const j=await resp.json().catch(()=>({}));
+            const parts=j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts;
+            const text=parts?parts.map(p=>p.text||"").join(""):"";
+            if(!resp.ok||!text)return r(502,{error:"model error"});
+            return r(200,{text});
+          };
+
+  Api:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: questboard-api
+      ProtocolType: HTTP
+      CorsConfiguration:
+        AllowOrigins: !Ref SiteOrigin
+        AllowMethods: [GET, PUT, POST, OPTIONS]
+        AllowHeaders: [authorization, content-type]
+
+  JwtAuth:
+    Type: AWS::ApiGatewayV2::Authorizer
+    Properties:
+      ApiId: !Ref Api
+      AuthorizerType: JWT
+      Name: cognito
+      IdentitySource: ["$request.header.Authorization"]
+      JwtConfiguration:
+        Audience: [!Ref UserPoolClient]
+        Issuer: !Sub "https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}"
+
+  Integration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref Api
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt StateFn.Arn
+      PayloadFormatVersion: "2.0"
+
+  RouteGet:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: "GET /state"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuth
+      Target: !Sub "integrations/${Integration}"
+
+  RoutePut:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: "PUT /state"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuth
+      Target: !Sub "integrations/${Integration}"
+
+  IntegrationAi:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref Api
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt AiFn.Arn
+      PayloadFormatVersion: "2.0"
+
+  RouteFeedback:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: "POST /feedback"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuth
+      Target: !Sub "integrations/${Integration}"
+
+  RouteAi:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: "POST /ai"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuth
+      Target: !Sub "integrations/${IntegrationAi}"
+
+  Stage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref Api
+      StageName: "$default"
+      AutoDeploy: true
+
+  FnPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref StateFn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/*/state"
+
+  FeedbackPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref StateFn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/*/feedback"
+
+  AiFnPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref AiFn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/*/ai"
+
+  Cdn:
+    Type: AWS::CloudFront::Distribution
+    Condition: HasSite
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: accountability partner site
+        HttpVersion: http2
+        PriceClass: PriceClass_200
+        Origins:
+          - Id: s3site
+            DomainName: !Ref SiteDomain
+            CustomOriginConfig:
+              OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          TargetOriginId: s3site
+          ViewerProtocolPolicy: redirect-to-https
+          # Managed-CachingDisabled: single small HTML file, always fresh, no invalidations needed
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+          Compress: true
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${Api}.execute-api.${AWS::Region}.amazonaws.com"
+  CdnUrl:
+    Condition: HasSite
+    Value: !Sub "https://${Cdn.DomainName}"
+  UserPoolId:
+    Value: !Ref UserPool
+  ClientId:
+    Value: !Ref UserPoolClient

@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accountability Partner — small reps compound</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg:#f6f7fb; --card:#ffffff; --card2:#fafbff; --ink:#1b2230; --muted:#6b7488; --line:#e7eaf1;
+    --track:#eef0f5; --hud2:#f4f0ff;
+    --accent:#f97316; --accent-soft:#fff1e6; --accent-ink:#b4531a; --accent-border:#fde3cc;
+    --green:#16a34a; --green-soft:#e8f7ee;
+    --amber:#f59e0b; --red:#ef4444; --blue:#2563eb; --violet:#7c3aed;
+    --soft-blue:#eef4ff; --soft-blue-border:#dbe6ff; --blue-ink:#24406e;
+    --miss-bg:#fff7f7; --miss-chip:#fdeaea; --red-ink:#c0392b;
+    --ok-border:#c9ecd5; --ok-ink:#12703a; --ok-bg1:#e8f7ee; --ok-bg2:#f0fbf3;
+    --gh0:#ebedf0; --gh1:#9be9a8; --gh2:#40c463; --gh3:#30a14e; --gh4:#216e39;
+    --shadow: 0 1px 2px rgba(20,30,60,.05), 0 10px 28px rgba(20,30,60,.07);
+  }
+  body.dark {
+    color-scheme: dark;
+    --bg:#0f131a; --card:#171c26; --card2:#1b212c; --ink:#e7ebf3; --muted:#93a0b4; --line:#28303d;
+    --track:#232b38; --hud2:#1d1830;
+    --accent-soft:#2a1d12; --accent-ink:#f0a868; --accent-border:#4a3016;
+    --green-soft:#12241b;
+    --soft-blue:#182238; --soft-blue-border:#26324a; --blue-ink:#aecbff;
+    --miss-bg:#241618; --miss-chip:#3a1e1f; --red-ink:#ff8b82;
+    --ok-border:#1f3d2b; --ok-ink:#7fdca3; --ok-bg1:#12241b; --ok-bg2:#0f2016;
+    --gh0:#1b2230; --gh1:#0e4429; --gh2:#006d32; --gh3:#26a641; --gh4:#39d353;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px rgba(0,0,0,.45);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.45; padding:22px; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:860px; margin:0 auto; }
+  header.top { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:4px; }
+  h1 { font-size:22px; margin:0; }
+  .hdr-right { display:flex; align-items:center; gap:8px; }
+  .sub { color:var(--muted); font-size:13px; margin:0; }
+  .iconbtn { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:9px; padding:6px 11px; font-size:13px; cursor:pointer; line-height:1; font-family:inherit; }
+  .iconbtn:hover { background:var(--track); }
+  .lead { color:var(--muted); font-size:13px; margin:4px 0 16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:var(--shadow); }
+  .section-title { font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:22px 0 10px; font-weight:700; }
+  .section-title.primary { font-size:13px; color:var(--ink); }
+  details.section { border:1px solid var(--line); border-radius:16px; background:var(--card); box-shadow:var(--shadow); margin-top:22px; overflow:hidden; }
+  details.section > summary { cursor:pointer; padding:14px 18px; font-weight:700; font-size:13.5px; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:10px; user-select:none; }
+  details.section > summary::-webkit-details-marker { display:none; }
+  details.section > summary .sumr { color:var(--muted); font-size:12.5px; font-weight:600; }
+  details.section[open] > summary { border-bottom:1px solid var(--line); }
+  details.section .inner { padding:18px; }
+
+  .hud { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; background:linear-gradient(150deg,var(--card),var(--hud2)); }
+  .hud-left { display:flex; align-items:center; gap:14px; }
+  .levelbadge { background:linear-gradient(135deg,var(--violet),var(--blue)); color:#fff; font-weight:800; font-size:18px; padding:12px 16px; border-radius:14px; white-space:nowrap; }
+  .levelname { font-size:17px; font-weight:800; }
+  .xpsub { font-size:12.5px; color:var(--muted); margin-top:2px; }
+  .hud-right { display:flex; align-items:center; gap:10px; }
+  .hud-right .flame { font-size:30px; }
+  .streaknum { font-size:34px; font-weight:800; line-height:1; }
+  .streaklbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+  .xpbar { height:12px; background:var(--track); border-radius:999px; overflow:hidden; margin:12px 0 6px; }
+  .xpbar > span { display:block; height:100%; background:linear-gradient(90deg,var(--violet),var(--blue),#22d3ee); border-radius:999px; transition:width .6s; }
+  .hudsub { font-size:12px; color:var(--muted); text-align:center; }
+
+  .wins-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px; }
+  @media (max-width:640px){ .wins-grid { grid-template-columns:repeat(2,1fr); } }
+  .wtile { text-align:center; padding:14px 8px; border:1px solid var(--line); border-radius:13px; background:linear-gradient(160deg,var(--card),var(--card2)); }
+  .wtile .wn { font-size:29px; font-weight:800; display:inline-block; }
+  .wtile .wk { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-top:3px; }
+  .wn.bump { animation:bump .42s ease; }
+  @keyframes bump { 0%{transform:scale(1)} 35%{transform:scale(1.3); color:var(--green)} 100%{transform:scale(1)} }
+  .nextmile { margin-top:12px; font-size:13px; color:var(--muted); text-align:center; }
+  .nextmile b { color:var(--ink); }
+
+  .ghmonths { display:flex; font-size:10px; color:var(--muted); margin-bottom:5px; width:max-content; }
+  .ghmonths span { flex:none; overflow:hidden; white-space:nowrap; }
+  .ghscroll { overflow-x:auto; padding-bottom:2px; }
+  .ghgrid { display:grid; grid-template-rows:repeat(7,13px); grid-auto-flow:column; grid-auto-columns:13px; gap:3px; width:max-content; }
+  .ghc { width:13px; height:13px; border-radius:3px; background:var(--gh0); display:inline-block; }
+  .ghgrid .ghc { cursor:pointer; }
+  .ghgrid .ghc:hover { transform:scale(1.25); outline:1.5px solid var(--muted); }
+  .ghc.l1{background:var(--gh1)} .ghc.l2{background:var(--gh2)} .ghc.l3{background:var(--gh3)} .ghc.l4{background:var(--gh4)}
+  .ghc.future{ opacity:.35; }
+  .ghc.today{ outline:2px solid var(--accent); outline-offset:1px; }
+  .ghc.sel{ outline:2px solid var(--violet); outline-offset:1px; }
+  .ghfoot { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; flex-wrap:wrap; font-size:11.5px; color:var(--muted); }
+  .ghlegend { display:inline-flex; align-items:center; gap:4px; }
+  .ghlegend .ghc { width:11px; height:11px; cursor:default; }
+
+  .todo-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+  .daytitle { display:flex; align-items:center; gap:9px; }
+  .daytitle .dname { font-size:16px; font-weight:700; }
+  .badge { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; padding:2px 8px; border-radius:999px; }
+  .badge.today { background:var(--green-soft); color:var(--green); }
+  .badge.past { background:var(--track); color:var(--muted); }
+  .badge.future { background:var(--soft-blue); color:var(--blue); }
+  .datenav { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .navbtn { border:1px solid var(--line); background:var(--card); border-radius:9px; width:30px; height:30px; font-size:15px; cursor:pointer; color:var(--ink); }
+  .navbtn:hover { background:var(--track); }
+  input[type="date"], input[type="text"], input[type="email"], input[type="password"], textarea { border:1px solid var(--line); border-radius:9px; padding:6px 10px; font-size:13.5px; color:var(--ink); font-family:inherit; background:var(--card); }
+  .todaybtn { border:1px solid var(--accent-border); background:var(--accent-soft); color:var(--accent-ink); border-radius:9px; padding:6px 12px; font-size:12.5px; cursor:pointer; font-weight:600; }
+  .planbtn { border:1px solid var(--soft-blue-border); background:var(--soft-blue); color:var(--blue-ink); border-radius:9px; padding:6px 12px; font-size:12.5px; cursor:pointer; font-weight:600; }
+  .frac { font-size:13px; color:var(--muted); margin-bottom:6px; }
+  .progress { height:8px; background:var(--track); border-radius:999px; overflow:hidden; margin:2px 0 16px; }
+  .progress > span { display:block; height:100%; background:linear-gradient(90deg,var(--green),#4ade80); border-radius:999px; transition:width .45s; }
+  .addrow { display:flex; gap:8px; margin-bottom:14px; }
+  .addrow input[type="text"] { flex:1; padding:11px 13px; font-size:14px; border-radius:11px; }
+  .addrow input[type="text"]:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(249,115,22,.12); }
+  .addbtn { border:none; background:var(--accent); color:#fff; border-radius:11px; padding:0 18px; font-size:14px; font-weight:600; cursor:pointer; }
+  ul.qlist { list-style:none; margin:0; padding:0; }
+  ul.qlist li { display:flex; align-items:center; gap:11px; padding:12px; border:1px solid var(--line); border-radius:12px; margin-bottom:9px; background:var(--card); animation:pop .18s ease; }
+  @keyframes pop { from{transform:scale(.98);opacity:.4} to{transform:scale(1);opacity:1} }
+  ul.qlist li.done { background:var(--green-soft); border-color:var(--ok-border); }
+  ul.qlist li.miss { background:var(--miss-bg); border-color:var(--miss-chip); }
+  button.check { flex:none; width:24px; height:24px; border-radius:7px; border:2px solid var(--line); background:var(--card); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; padding:0; }
+  button.check:hover { border-color:var(--green); }
+  li.done button.check { background:var(--green); border-color:var(--green); }
+  .check svg { width:14px; height:14px; opacity:0; transform:scale(.4); transition:.18s; }
+  li.done .check svg { opacity:1; transform:scale(1); }
+  .task-main { flex:1; display:flex; align-items:center; gap:7px; flex-wrap:wrap; cursor:pointer; }
+  .ttext { font-size:14.5px; word-break:break-word; }
+  li.done .ttext { text-decoration:line-through; color:var(--muted); }
+  .chip { font-size:9.5px; font-weight:700; text-transform:uppercase; padding:2px 7px; border-radius:999px; }
+  .chip.carry { background:var(--soft-blue); color:var(--blue-ink); }
+  .chip.miss { background:var(--miss-chip); color:var(--red-ink); }
+  .focusbtn { flex:none; border:1px solid var(--soft-blue-border); background:var(--soft-blue); color:var(--blue-ink); border-radius:9px; width:30px; height:30px; font-size:13px; cursor:pointer; }
+  .del { flex:none; border:none; background:transparent; color:var(--muted); font-size:18px; cursor:pointer; padding:2px 6px; border-radius:7px; opacity:0; transition:opacity .15s; }
+  ul.qlist li:hover .del { opacity:.7; }
+  .del:hover { color:var(--red); }
+  .empty { color:var(--muted); font-style:italic; padding:14px 2px; font-size:13.5px; }
+  .celebrate { margin-top:6px; padding:12px 14px; border-radius:12px; background:linear-gradient(120deg,var(--ok-bg1),var(--ok-bg2)); border:1px solid var(--ok-border); color:var(--ok-ink); font-size:13.5px; font-weight:600; display:none; }
+  .readonly-note { font-size:12px; color:var(--muted); margin-bottom:10px; }
+
+  .daysummary { margin-top:14px; border:1px solid var(--line); border-radius:12px; padding:14px; background:var(--card2); }
+  .ds-title { font-size:11.5px; text-transform:uppercase; color:var(--muted); font-weight:700; margin-bottom:9px; }
+  .ds-line { font-size:13.5px; margin-bottom:6px; }
+  .ds-missed { font-size:12.5px; color:var(--red-ink); margin-bottom:9px; }
+  .ds-clean { font-size:13px; color:var(--green); font-weight:600; margin-bottom:9px; }
+  .ds-note { width:100%; min-height:64px; border-radius:10px; font-size:13.5px; resize:vertical; padding:10px 12px; }
+  .ds-hint { font-size:11.5px; color:var(--muted); margin-top:6px; }
+
+  #milestoneList { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  #milestoneList li { margin-bottom:0; }
+  @media (max-width:640px){ #milestoneList { grid-template-columns:1fr; } }
+  .mile-add { display:flex; gap:8px; margin-top:12px; }
+  .mile-add input { flex:1; }
+
+  .goalrow { display:flex; gap:10px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .goalrow:last-child { border-bottom:none; }
+  .glabel { font-size:11px; text-transform:uppercase; color:var(--muted); font-weight:700; min-width:82px; }
+  .goalrow input { flex:1; min-width:160px; }
+
+  .motto { margin-top:22px; padding:16px 18px; border-radius:14px; background:var(--soft-blue); border:1px solid var(--soft-blue-border); color:var(--blue-ink); font-size:14px; }
+  footer { margin-top:16px; color:var(--muted); font-size:12px; text-align:center; }
+
+  #confetti { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:9999; }
+  .leveltoast { position:fixed; top:18px; left:50%; transform:translateX(-50%) translateY(-24px); background:linear-gradient(120deg,var(--violet),var(--blue)); color:#fff; font-weight:700; font-size:13.5px; padding:10px 18px; border-radius:999px; opacity:0; transition:.3s; z-index:10000; pointer-events:none; }
+  .leveltoast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  .xpfloat { position:fixed; transform:translate(-50%,0); font-weight:800; font-size:16px; color:var(--violet); pointer-events:none; z-index:10001; transition:transform .85s,opacity .85s; }
+
+  #focusOverlay { position:fixed; inset:0; background:var(--bg); z-index:9000; display:none; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center; }
+  #focusOverlay.open { display:flex; }
+  .f-task { font-size:17px; font-weight:700; max-width:560px; margin-bottom:6px; }
+  .f-sub { font-size:12.5px; color:var(--muted); margin-bottom:20px; }
+  .f-durs { display:flex; gap:8px; justify-content:center; margin-bottom:22px; }
+  .fdur { border:1px solid var(--line); background:var(--card); color:var(--muted); border-radius:999px; padding:5px 14px; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .fdur.on { background:var(--soft-blue); color:var(--blue-ink); border-color:var(--soft-blue-border); }
+  .f-time { font-size:88px; font-weight:800; line-height:1; margin-bottom:8px; }
+  .f-time.paused { color:var(--muted); }
+  .f-time.up { color:var(--green); }
+  .f-state { font-size:13px; color:var(--muted); margin-bottom:26px; min-height:18px; }
+  .f-ring { height:10px; width:min(430px,80vw); background:var(--track); border-radius:999px; overflow:hidden; margin-bottom:30px; }
+  .f-ring > span { display:block; height:100%; background:linear-gradient(90deg,var(--violet),var(--blue)); border-radius:999px; transition:width 1s linear; }
+  .f-btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+  .fbtn { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:12px; padding:12px 22px; font-size:14.5px; font-weight:600; cursor:pointer; font-family:inherit; }
+  .fbtn.done { background:var(--green); border-color:var(--green); color:#fff; }
+
+  /* ===== auth ===== */
+  #authOverlay { position:fixed; inset:0; background:var(--bg); z-index:11000; display:flex; align-items:center; justify-content:center; padding:20px; }
+  #authOverlay.hidden { display:none; }
+  .authcard { width:min(400px,94vw); background:var(--card); border:1px solid var(--line); border-radius:18px; padding:26px; box-shadow:var(--shadow); }
+  .authcard h2 { margin:0 0 4px; font-size:20px; }
+  .authcard .as { color:var(--muted); font-size:13px; margin:0 0 18px; }
+  .authcard label { display:block; font-size:12px; color:var(--muted); font-weight:600; margin:10px 0 4px; }
+  .authcard input { width:100%; padding:10px 12px; font-size:14px; border-radius:10px; }
+  .authbtn { width:100%; margin-top:16px; border:none; background:var(--accent); color:#fff; border-radius:11px; padding:12px; font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .authbtn:disabled { opacity:.6; }
+  .authalt { text-align:center; font-size:13px; color:var(--muted); margin-top:14px; }
+  .authalt a { color:var(--blue); cursor:pointer; text-decoration:underline; }
+  .autherr { color:var(--red); font-size:12.5px; margin-top:10px; min-height:16px; }
+
+  /* ===== assistant bubble ===== */
+  #aiBubble { position:fixed; right:20px; bottom:20px; width:56px; height:56px; border-radius:50%; border:none;
+    background:linear-gradient(135deg,var(--violet),var(--blue)); color:#fff; font-size:24px; cursor:pointer;
+    box-shadow:0 10px 28px rgba(37,99,235,.45); z-index:10500; }
+  #aiBubble.pulse { animation:pulse 1.6s infinite; }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(124,58,237,.5)} 70%{box-shadow:0 0 0 16px rgba(124,58,237,0)} 100%{box-shadow:0 0 0 0 rgba(124,58,237,0)} }
+  #aiPanel { position:fixed; right:20px; bottom:88px; width:min(370px,92vw); height:min(480px,70vh);
+    background:var(--card); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow);
+    z-index:10500; display:none; flex-direction:column; overflow:hidden; }
+  #aiPanel.open { display:flex; }
+  .ai-head { padding:12px 16px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; background:linear-gradient(120deg,var(--hud2),var(--card)); }
+  .ai-head b { font-size:14px; }
+  .ai-head .sub { font-size:11px; }
+  .ai-log { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+  .ai-msg { max-width:85%; padding:9px 12px; border-radius:13px; font-size:13.5px; line-height:1.45; white-space:pre-wrap; word-break:break-word; }
+  .ai-msg.user { align-self:flex-end; background:var(--accent-soft); border:1px solid var(--accent-border); }
+  .ai-msg.bot { align-self:flex-start; background:var(--soft-blue); border:1px solid var(--soft-blue-border); color:var(--blue-ink); }
+  .ai-msg.sys { align-self:center; background:var(--track); color:var(--muted); font-size:12px; }
+  .ai-act { align-self:flex-start; font-size:11.5px; color:var(--green); font-weight:600; }
+  .ai-chips { display:flex; gap:6px; padding:0 14px 8px; flex-wrap:wrap; }
+  .ai-chip { border:1px solid var(--soft-blue-border); background:var(--soft-blue); color:var(--blue-ink); border-radius:999px; padding:5px 11px; font-size:12px; cursor:pointer; font-weight:600; font-family:inherit; }
+  .ai-input { display:flex; gap:8px; padding:12px; border-top:1px solid var(--line); }
+  .ai-input input { flex:1; padding:10px 12px; font-size:13.5px; border-radius:11px; }
+  .ai-input button { border:none; background:var(--violet); color:#fff; border-radius:11px; padding:0 16px; font-weight:700; cursor:pointer; font-size:14px; }
+  .ai-typing { align-self:flex-start; color:var(--muted); font-size:12px; }
+  .syncdot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--green); margin-right:5px; vertical-align:1px; }
+  .syncdot.off { background:var(--amber); }
+
+  /* ===== typography hierarchy: bigger where it matters, dimmer where it doesn't ===== */
+  h1 { font-size:24px; font-weight:800; letter-spacing:-.02em; }
+  .levelname { font-size:18px; letter-spacing:-.01em; }
+  .streaknum { font-size:36px; }
+  .wtile .wn { font-size:30px; }
+  .daytitle .dname { font-size:17px; }
+  .ttext { font-size:15px; }
+  .section-title { letter-spacing:.1em; }
+  .ds-hint, .ghfoot, .readonly-note { opacity:.85; }
+  .lead { font-size:14.5px; }
+  .lead b { font-weight:800; color:var(--ink); }
+  footer { font-size:11.5px; opacity:.85; }
+  footer a { color:var(--blue); cursor:pointer; text-decoration:underline; }
+
+  /* ===== first-run guidance tips ===== */
+  #tipBox { position:absolute; z-index:12000; max-width:300px; background:var(--blue); color:#fff; border-radius:13px; padding:13px 15px; font-size:13.5px; line-height:1.5; box-shadow:0 12px 32px rgba(37,99,235,.45); }
+  #tipBox .tip-step { font-size:10.5px; opacity:.8; font-weight:700; text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px; }
+  #tipBox .tip-btns { display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
+  #tipBox button { border:none; border-radius:8px; padding:6px 13px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; }
+  #tipBox .tip-next { background:#fff; color:var(--blue); }
+  #tipBox .tip-skip { background:transparent; color:#fff; opacity:.75; }
+  .tip-target { position:relative; z-index:11990; box-shadow:0 0 0 3px var(--blue); border-radius:12px; }
+
+  /* ===== feedback page ===== */
+  #fbOverlay { position:fixed; inset:0; background:var(--bg); z-index:10800; display:none; overflow-y:auto; padding:24px 18px 40px; }
+  #fbOverlay.open { display:block; }
+  .fb-wrap { max-width:620px; margin:0 auto; }
+  .fb-wrap h2 { font-size:21px; letter-spacing:-.01em; margin:18px 0 6px; }
+  .fb-sub { color:var(--muted); font-size:13.5px; margin:0 0 14px; }
+  #fbText { width:100%; min-height:130px; border-radius:12px; font-size:14px; padding:12px 14px; resize:vertical; }
+  .fb-send { margin-top:12px; border:none; background:var(--accent); color:#fff; border-radius:11px; padding:11px 22px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+  .fb-send:disabled { opacity:.6; }
+  #fbStatus { margin-top:10px; font-size:13px; color:var(--green); min-height:18px; }
+  .fb-const { margin-top:34px; border-top:1px solid var(--line); padding-top:18px; color:var(--muted); font-size:12.5px; line-height:1.6; }
+  .fb-const h3 { color:var(--ink); font-size:13.5px; margin:0 0 8px; }
+  .fb-const h4 { color:var(--ink); font-size:12px; text-transform:uppercase; letter-spacing:.07em; margin:14px 0 4px; }
+  .fb-const p { margin:0 0 8px; }
+</style>
+</head>
+<body>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div id="levelToast" class="leveltoast" role="status"></div>
+
+<!-- auth -->
+<div id="authOverlay">
+  <div class="authcard">
+    <h2>🤝 Accountability Partner</h2>
+    <p class="as">Your virtual accountability partner — goals, streaks, and an honest AI companion that plans with you. Free.</p>
+    <div id="authLogin">
+      <label>Email</label><input type="email" id="liEmail" autocomplete="email">
+      <label>Password</label><input type="password" id="liPw" autocomplete="current-password">
+      <button class="authbtn" id="liBtn">Log in</button>
+      <div class="authalt">New here? <a id="toSignup">Create an account</a></div>
+    </div>
+    <div id="authSignup" style="display:none;">
+      <label>Email</label><input type="email" id="suEmail" autocomplete="email">
+      <label>Password (8+ characters)</label><input type="password" id="suPw" autocomplete="new-password">
+      <button class="authbtn" id="suBtn">Sign up</button>
+      <div class="authalt">Already have an account? <a id="toLogin">Log in</a></div>
+    </div>
+    <div id="authConfirm" style="display:none;">
+      <p class="as">We emailed you a 6-digit code.</p>
+      <label>Confirmation code</label><input type="text" id="ccCode" inputmode="numeric">
+      <button class="authbtn" id="ccBtn">Confirm & start</button>
+      <div class="authalt"><a id="ccResend">Resend code</a></div>
+    </div>
+    <div class="autherr" id="authErr"></div>
+  </div>
+</div>
+
+<!-- focus -->
+<div id="focusOverlay" role="dialog" aria-modal="true" aria-label="Focus session">
+  <div class="f-task" id="fTask"></div>
+  <div class="f-sub">Focus session · everything else can wait · Esc to end</div>
+  <div class="f-durs" id="fDurs">
+    <button class="fdur" data-mins="25">25 min</button>
+    <button class="fdur" data-mins="50">50 min</button>
+  </div>
+  <div class="f-time" id="fTime">25:00</div>
+  <div class="f-state" id="fState"></div>
+  <div class="f-ring"><span id="fRing" style="width:0%"></span></div>
+  <div class="f-btns">
+    <button class="fbtn done" id="fDone">✓ Done — complete quest</button>
+    <button class="fbtn" id="fPause">⏸ Pause</button>
+    <button class="fbtn" id="fQuit">✕ End session</button>
+  </div>
+</div>
+
+<div class="wrap" id="appWrap" style="display:none;">
+  <header class="top">
+    <h1>🤝 Accountability Partner</h1>
+    <div class="hdr-right">
+      <span class="sub" id="syncStatus"><span class="syncdot"></span>synced</span>
+      <button id="themeToggle" class="iconbtn" aria-label="Toggle theme">🌙</button>
+      <button id="logoutBtn" class="iconbtn">Log out</button>
+    </div>
+  </header>
+  <p class="lead" id="greetLine">Small reps compound. Every check-off is XP.</p>
+
+  <div class="section-title primary" id="questsAnchor">✍️ Today's quests · your #1 focus</div>
+  <div class="card">
+    <div class="todo-head">
+      <div class="daytitle"><span class="dname" id="dayName">Today</span><span class="badge today" id="dayBadge">Today</span></div>
+      <div class="datenav">
+        <button class="navbtn" id="prevDay" aria-label="Previous day">‹</button>
+        <input type="date" id="datePicker" aria-label="Choose date">
+        <button class="navbtn" id="nextDay" aria-label="Next day">›</button>
+        <button class="todaybtn" id="todayBtn">Today</button>
+        <button class="planbtn" id="planBtn">Plan tomorrow →</button>
+      </div>
+    </div>
+    <div class="frac" id="todoFrac">0 of 0 done</div>
+    <div class="progress"><span id="todoProgress" style="width:0%"></span></div>
+    <div class="addrow" id="addRow">
+      <input type="text" id="taskInput" placeholder="Add a quest…  (or ask the assistant 🤖)" maxlength="160" aria-label="New quest">
+      <button class="addbtn" id="addBtn">Add</button>
+    </div>
+    <p class="readonly-note" id="roNote" style="display:none;"></p>
+    <ul class="qlist" id="todoList"></ul>
+    <div class="celebrate" id="celebrate">🎉 All quests cleared for this day — full rep!</div>
+    <div id="daySummary"></div>
+  </div>
+
+  <div class="card hud" style="margin-top:22px;">
+    <div class="hud-left">
+      <div class="levelbadge" id="levelBadge">Lv 1</div>
+      <div>
+        <div class="levelname" id="levelName">Getting Started</div>
+        <div class="xpsub"><span id="xpSub">0 XP</span> · <span id="xpToNext">100 XP to Lv 2</span></div>
+      </div>
+    </div>
+    <div class="hud-right">
+      <div class="flame">🔥</div>
+      <div><div class="streaknum" id="curStreak">0</div><div class="streaklbl">day streak</div></div>
+    </div>
+  </div>
+  <div class="xpbar"><span id="xpFill" style="width:0%"></span></div>
+  <div class="hudsub" id="hudSub"></div>
+
+  <div class="wins-grid">
+    <div class="wtile"><div class="wn" id="wTasks">0</div><div class="wk">✅ Quests done</div></div>
+    <div class="wtile"><div class="wn" id="wPerfect">0</div><div class="wk">🌟 Perfect days</div></div>
+    <div class="wtile"><div class="wn" id="wFocus">0</div><div class="wk">⏱ Focus min</div></div>
+    <div class="wtile"><div class="wn" id="wMiles">0</div><div class="wk">🗺️ Milestones</div></div>
+  </div>
+  <div class="nextmile" id="nextMile"></div>
+
+  <div class="section-title">🟩 Productivity grid · darker = more done</div>
+  <div class="card">
+    <div class="ghmonths" id="ghMonths"></div>
+    <div class="ghscroll"><div class="ghgrid" id="ghGrid"></div></div>
+    <div class="ghfoot">
+      <span id="gridCaption"></span>
+      <span class="ghlegend">Less <i class="ghc"></i><i class="ghc l1"></i><i class="ghc l2"></i><i class="ghc l3"></i><i class="ghc l4"></i> More</span>
+    </div>
+  </div>
+
+  <details class="section" id="mileSection">
+    <summary>🗺️ Milestones — your ladder <span class="sumr" id="rmFrac">0 / 0</span></summary>
+    <div class="inner">
+      <div class="progress"><span id="rmProgress" style="width:0%"></span></div>
+      <ul class="qlist" id="milestoneList"></ul>
+      <div class="mile-add">
+        <input type="text" id="mileInput" placeholder="Add a milestone (e.g. 'Finish chapter 3')" maxlength="120">
+        <button class="addbtn" id="mileBtn">Add</button>
+      </div>
+    </div>
+  </details>
+
+  <details class="section" id="goalsSection">
+    <summary>🎯 Goals <span class="sumr" id="goalSum"></span></summary>
+    <div class="inner">
+      <div class="goalrow"><span class="glabel">🌠 Long-term</span><input type="text" id="gLong" placeholder="e.g. Crack the exam · Get fit · Ship my app" maxlength="140"></div>
+      <div class="goalrow"><span class="glabel">📅 Target date</span><input type="date" id="gTarget"></div>
+      <div class="goalrow"><span class="glabel">🗓️ This week</span><input type="text" id="gWeek" placeholder="What makes this week a win?" maxlength="140"></div>
+    </div>
+  </details>
+
+  <div class="motto" id="motto"></div>
+  <footer>Progress syncs to your account — pick up on any device. 🤖 = your AI accountability partner. · <a id="fbLink">💬 Feedback &amp; the science behind this</a></footer>
+</div>
+
+<!-- feedback page -->
+<div id="fbOverlay" role="dialog" aria-label="Feedback">
+  <div class="fb-wrap">
+    <button class="iconbtn" id="fbBack">← Back to board</button>
+    <h2>💬 Help make Accountability Partner better</h2>
+    <p class="fb-sub">What's confusing? What's missing? What would make you open this every single day? Your note goes straight to the maker.</p>
+    <textarea id="fbText" maxlength="2000" placeholder="Be blunt — brutal feedback is the most useful kind."></textarea>
+    <div><button class="fb-send" id="fbSend">Send feedback</button></div>
+    <div id="fbStatus"></div>
+    <div class="fb-const">
+      <h3>📜 The science Accountability Partner is built on</h3>
+      <p>Long preparations (exams, big goals) follow three psychological phases. This app — and your AI partner — are designed around them.</p>
+      <h4>Phase 1 · High motivation (first ~30%)</h4>
+      <p>Dopamine, novelty and external pressure do the pushing. The job here: bank reps and build the habit while motivation is cheap.</p>
+      <h4>Phase 2 · The grind (~30–75%)</h4>
+      <p>Motivation dips — the goal feels far away (psychological distancing), progress feels invisible (perceived vs. actual learning), and comparing yourself to others drains you. The daily log and streak exist for exactly this phase: trust the record, not the feeling.</p>
+      <h4>Phase 3 · The final push (last ~25%)</h4>
+      <p>Anxiety rises because the goal matters but self-belief wobbles. The Yerkes–Dodson law says moderate arousal is peak performance — so the app reframes nerves as readiness, not threat.</p>
+      <h4>The engine: Self-Determination Theory</h4>
+      <p><b>Autonomy</b> — you choose your quests; SMART, finishable-today tasks beat vague plans (and beat hyperbolic discounting, the brain's bias for instant rewards). <b>Competence</b> — active recall, a mistake register in your end-of-day notes, and sleep for memory consolidation. <b>Relatedness</b> — an accountability partner who is honest with you, plus self-compassion after slips instead of shame spirals.</p>
+      <h4>Managing the hard days</h4>
+      <p>Friction design for distractions, urge surfing for cravings, progressive muscle relaxation and exercise for stress — and relabeling anxiety as excitement when the day comes.</p>
+    </div>
+  </div>
+</div>
+
+<!-- assistant -->
+<button id="aiBubble" aria-label="Open assistant" style="display:none;">🤖</button>
+<div id="aiPanel" role="dialog" aria-label="AI assistant">
+  <div class="ai-head">
+    <div><b>Your accountability partner</b><div class="sub" id="aiSub">tell me your plans — I'll handle the board</div></div>
+    <button class="iconbtn" id="aiClose">✕</button>
+  </div>
+  <div class="ai-log" id="aiLog"></div>
+  <div class="ai-chips">
+    <button class="ai-chip" data-q="Plan my day — ask me what I'm working on, then add my quests.">🌅 Plan my day</button>
+    <button class="ai-chip" data-q="Summarize my day: look at what I completed and missed today and write my end-of-day note.">🌙 Summarize my day</button>
+    <button class="ai-chip" data-q="Help me break my long-term goal into milestones.">🗺️ Break down my goal</button>
+  </div>
+  <div class="ai-input">
+    <input type="text" id="aiText" placeholder="e.g. tomorrow I'll revise DNS + do 30 pushups" maxlength="500">
+    <button id="aiSend">➤</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   Quest Board — public edition
+   Cognito auth · DynamoDB sync · Gemini assistant (via /ai)
+   Placeholders injected at deploy: __API_URL__ __CLIENT_ID__ __REGION__
+   ============================================================ */
+const CONFIG = { api:"__API_URL__", clientId:"__CLIENT_ID__", region:"__REGION__" };
+
+const LEVEL_NAMES = ["Getting Started","Warming Up","Finding Rhythm","On a Roll","Committed","Locked In","Relentless","Unstoppable","Peak Climber","Legend"];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+const LUCKY_ODDS = 0.18;
+
+const $ = id => document.getElementById(id);
+const iso = d => d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const prettyDate = date => new Date(date+"T00:00:00").toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"});
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const todayIso = () => iso(new Date());
+let TODAY = todayIso();
+const State = { selected: TODAY };
+
+/* ---------------- Auth (Cognito REST, no SDK) ---------------- */
+const Auth = {
+  KEY:"qb_auth",
+  tokens(){ try { return JSON.parse(localStorage.getItem(this.KEY)); } catch(e){ return null; } },
+  save(t){ localStorage.setItem(this.KEY, JSON.stringify(t)); },
+  clear(){ localStorage.removeItem(this.KEY); },
+  async idp(action, body){
+    const res = await fetch(`https://cognito-idp.${CONFIG.region}.amazonaws.com/`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/x-amz-json-1.1", "X-Amz-Target":"AWSCognitoIdentityProviderService."+action },
+      body: JSON.stringify(body)
+    });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.message || j.__type || "Auth error");
+    return j;
+  },
+  signup(email, pw){ return this.idp("SignUp", { ClientId:CONFIG.clientId, Username:email, Password:pw, UserAttributes:[{Name:"email",Value:email}] }); },
+  confirm(email, code){ return this.idp("ConfirmSignUp", { ClientId:CONFIG.clientId, Username:email, ConfirmationCode:code }); },
+  resend(email){ return this.idp("ResendConfirmationCode", { ClientId:CONFIG.clientId, Username:email }); },
+  async login(email, pw){
+    const j = await this.idp("InitiateAuth", { AuthFlow:"USER_PASSWORD_AUTH", ClientId:CONFIG.clientId, AuthParameters:{ USERNAME:email, PASSWORD:pw } });
+    const a = j.AuthenticationResult;
+    this.save({ id:a.IdToken, refresh:a.RefreshToken, exp:Date.now() + (a.ExpiresIn-60)*1000, email });
+  },
+  async refresh(){
+    const t = this.tokens(); if (!t || !t.refresh) throw new Error("no session");
+    const j = await this.idp("InitiateAuth", { AuthFlow:"REFRESH_TOKEN_AUTH", ClientId:CONFIG.clientId, AuthParameters:{ REFRESH_TOKEN:t.refresh } });
+    const a = j.AuthenticationResult;
+    this.save({ ...t, id:a.IdToken, exp:Date.now() + (a.ExpiresIn-60)*1000 });
+  },
+  async token(){
+    let t = this.tokens(); if (!t) return null;
+    if (Date.now() > t.exp){ try { await this.refresh(); t = this.tokens(); } catch(e){ this.clear(); return null; } }
+    return t.id;
+  },
+  sub(){
+    const t = this.tokens(); if (!t || !t.id) return null;
+    try { return JSON.parse(atob(t.id.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).sub; } catch(e){ return null; }
+  }
+};
+
+/* ---------------- Api ---------------- */
+const Api = {
+  async call(method, path, body){
+    const tok = await Auth.token();
+    if (!tok) throw new Error("not logged in");
+    const res = await fetch(CONFIG.api + path, {
+      method, headers:{ "Authorization":"Bearer "+tok, "Content-Type":"application/json" },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (res.status === 401){ await Auth.refresh(); return this.call(method, path, body); }
+    return res;
+  }
+};
+
+/* ---------------- Store: local cache + cloud sync ---------------- */
+const Store = {
+  state:null, dirty:false, timer:null, online:true,
+  blank(){ return { v:1, profile:{ name:"" }, goals:{ longTerm:"", targetDate:"", weekGoal:"", startDate:TODAY }, milestones:[], quests:{}, notes:{}, focusMin:0, bonusXp:0, focusDur:25, theme:"light" }; },
+  cacheKey(){ return "qb_state_" + (Auth.sub() || "anon"); },
+  loadCache(){ try { return JSON.parse(localStorage.getItem(this.cacheKey())); } catch(e){ return null; } },
+  saveCache(){ try { localStorage.setItem(this.cacheKey(), JSON.stringify(this.state)); } catch(e){} },
+  day(date){ return this.state.quests[date] || []; },
+  setDay(date, items){ this.state.quests[date] = items; this.touch(); },
+  touch(){ this.saveCache(); this.dirty = true; this.schedule(); },
+  schedule(){
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.push(), 1200);
+  },
+  async push(){
+    if (!this.dirty) return;
+    try {
+      const res = await Api.call("PUT", "/state", this.state);
+      this.online = res.ok;
+      if (res.ok) this.dirty = false;
+    } catch(e){ this.online = false; }
+    UI.syncStatus();
+  },
+  async pull(){
+    try {
+      const res = await Api.call("GET", "/state");
+      if (!res.ok) throw new Error("pull failed");
+      const remote = await res.json();
+      const local = this.loadCache();
+      this.state = this.merge(local, (remote && remote.v) ? remote : null) || this.blank();
+      this.online = true;
+    } catch(e){
+      this.state = this.loadCache() || this.blank();
+      this.online = false;
+    }
+    if (!this.state.goals.startDate) this.state.goals.startDate = TODAY;
+    if (!this.state.profile) this.state.profile = { name:"" };
+    this.saveCache();
+    UI.syncStatus();
+  },
+  merge(a, b){
+    if (!a) return b; if (!b) return a;
+    const out = this.blank();
+    out.profile = { name: (b.profile && b.profile.name) || (a.profile && a.profile.name) || "" };
+    out.goals = {
+      longTerm: b.goals.longTerm || a.goals.longTerm || "",
+      targetDate: b.goals.targetDate || a.goals.targetDate || "",
+      weekGoal: b.goals.weekGoal || a.goals.weekGoal || "",
+      startDate: [a.goals.startDate, b.goals.startDate].filter(Boolean).sort()[0] || TODAY
+    };
+    const mById = {};
+    [...(a.milestones||[]), ...(b.milestones||[])].forEach(m => {
+      if (!mById[m.id]) mById[m.id] = { ...m };
+      else mById[m.id].done = mById[m.id].done || m.done;
+    });
+    out.milestones = Object.values(mById);
+    const dates = new Set([...Object.keys(a.quests||{}), ...Object.keys(b.quests||{})]);
+    dates.forEach(d => {
+      const byId = {};
+      [...(a.quests[d]||[]), ...(b.quests[d]||[])].forEach(it => {
+        if (!byId[it.id]) byId[it.id] = { ...it };
+        else { byId[it.id].done = byId[it.id].done || it.done; byId[it.id].rolled = byId[it.id].rolled || it.rolled; }
+      });
+      out.quests[d] = Object.values(byId);
+    });
+    const nd = new Set([...Object.keys(a.notes||{}), ...Object.keys(b.notes||{})]);
+    nd.forEach(d => { const x = (a.notes||{})[d] || "", y = (b.notes||{})[d] || ""; out.notes[d] = y.length >= x.length ? y : x; });
+    out.focusMin = Math.max(a.focusMin||0, b.focusMin||0);
+    out.bonusXp = Math.max(a.bonusXp||0, b.bonusXp||0);
+    out.focusDur = b.focusDur || a.focusDur || 25;
+    out.theme = b.theme || a.theme || "light";
+    return out;
+  },
+  rollover(){
+    const s = this.state.quests; let changed = false;
+    for (const d of Object.keys(s).filter(k => k < TODAY).sort()){
+      for (const it of s[d]){
+        if (!it.done && !it.rolled){
+          it.rolled = true; it.missed = true;
+          const origin = it.carryOrigin || it.id;
+          if (!s[TODAY]) s[TODAY] = [];
+          if (!s[TODAY].some(t => (t.carryOrigin || t.id) === origin)){
+            s[TODAY].push({ id: uid(), text: it.text, done:false, carryOrigin:origin, carriedFrom:d, carryCount:(it.carryCount||0)+1 });
+          }
+          changed = true;
+        }
+      }
+    }
+    if (changed) this.touch();
+  }
+};
+
+/* ---------------- FX ---------------- */
+const FX = (() => {
+  const cv = $("confetti"), cx = cv.getContext("2d");
+  const resize = () => { cv.width = innerWidth; cv.height = innerHeight; };
+  resize(); addEventListener("resize", resize);
+  let parts = [], raf = null;
+  function loop(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    parts.forEach(p => { p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= .012; });
+    parts = parts.filter(p => p.life > 0 && p.y < cv.height + 30);
+    parts.forEach(p => { cx.save(); cx.globalAlpha = Math.max(p.life,0); cx.translate(p.x,p.y); cx.rotate(p.rot); cx.fillStyle = p.c; cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6); cx.restore(); });
+    if (parts.length) raf = requestAnimationFrame(loop); else { raf = null; cx.clearRect(0,0,cv.width,cv.height); }
+  }
+  return {
+    burst(x = innerWidth/2, y = innerHeight*0.28, n = 80){
+      const cs = ["#f97316","#16a34a","#2563eb","#f59e0b","#7c3aed","#ef4444","#22d3ee"];
+      for (let i = 0; i < n; i++) parts.push({ x, y, vx:(Math.random()-.5)*10, vy:Math.random()*-10-2, g:.3, life:1, rot:Math.random()*6, vr:(Math.random()-.5)*.5, c:cs[i%cs.length], s:5+Math.random()*6 });
+      if (!raf) loop();
+    },
+    floatXP(x, y, text){
+      const el = document.createElement("div");
+      el.className = "xpfloat"; el.textContent = text;
+      el.style.left = x+"px"; el.style.top = y+"px";
+      document.body.appendChild(el);
+      requestAnimationFrame(() => { el.style.transform = "translate(-50%,-48px)"; el.style.opacity = "0"; });
+      setTimeout(() => el.remove(), 900);
+    },
+    toast(msg){
+      const t = $("levelToast"); t.textContent = msg; t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 2800);
+    }
+  };
+})();
+
+/* ---------------- computed stats (no coach needed) ---------------- */
+const Calc = {
+  dayDone(date){ return Store.day(date).some(i => i.done); },
+  streak(){
+    let s = 0; let d = new Date(TODAY+"T00:00:00");
+    if (!this.dayDone(TODAY)) d.setDate(d.getDate()-1);
+    while (this.dayDone(iso(d))){ s++; d.setDate(d.getDate()-1); }
+    return s;
+  },
+  longest(){
+    const dates = Object.keys(Store.state.quests).filter(d => this.dayDone(d)).sort();
+    let best = 0, run = 0, prev = null;
+    for (const d of dates){
+      if (prev){
+        const nx = new Date(prev+"T00:00:00"); nx.setDate(nx.getDate()+1);
+        run = (iso(nx) === d) ? run+1 : 1;
+      } else run = 1;
+      best = Math.max(best, run); prev = d;
+    }
+    return best;
+  },
+  phase(){
+    const g = Store.state.goals;
+    if (!g.targetDate) return null;
+    const start = new Date(g.startDate+"T00:00:00"), end = new Date(g.targetDate+"T00:00:00");
+    const total = Math.max(1, Math.round((end-start)/86400000));
+    const dayN = Math.min(total, Math.max(1, Math.round((new Date(TODAY+"T00:00:00")-start)/86400000)+1));
+    const pct = dayN/total;
+    if (pct <= 0.30) return { n:1, name:"High motivation", dayN, total, motto:"Phase 1: motivation is cheap right now — spend it. Bank reps while dopamine is doing the pushing." };
+    if (pct <= 0.75) return { n:2, name:"The grind", dayN, total, motto:"Phase 2: the dip is chemistry, not truth. Your log says you're progressing. Trust the log, not the feeling." };
+    return { n:3, name:"Final push", dayN, total, motto:"Phase 3: nerves mean the goal matters. Same arousal, new label — that's readiness, not anxiety." };
+  }
+};
+
+/* ---------------- UI ---------------- */
+const UI = {
+  syncStatus(){
+    const el = $("syncStatus");
+    el.innerHTML = Store.online
+      ? '<span class="syncdot"></span>synced'
+      : '<span class="syncdot off"></span>offline — will sync';
+  }
+};
+
+/* ---------------- Grid ---------------- */
+const Grid = {
+  render(){
+    const q = Store.state.quests;
+    const WEEKS = 26;
+    const today = new Date(); today.setHours(0,0,0,0);
+    const sun = new Date(today); sun.setDate(today.getDate() - today.getDay());
+    const start = new Date(sun); start.setDate(sun.getDate() - (WEEKS-1)*7);
+    const cells = [], colMonth = [];
+    let bestKey = null, bestCount = 0;
+    for (let w = 0; w < WEEKS; w++){
+      const col0 = new Date(start); col0.setDate(start.getDate() + w*7);
+      colMonth.push(col0.getMonth());
+      for (let r = 0; r < 7; r++){
+        const d = new Date(start); d.setDate(start.getDate() + w*7 + r);
+        const key = iso(d);
+        const count = (q[key]||[]).filter(x => x.done).length;
+        let lvl = 0; if (count>=1) lvl=1; if (count>=2) lvl=2; if (count>=4) lvl=3; if (count>=6) lvl=4;
+        const future = d > today;
+        if (!future && count > bestCount){ bestCount = count; bestKey = key; }
+        const label = d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});
+        const title = future ? label+" · upcoming" : `${label} · ${count ? count+" done" : "nothing yet"}`;
+        const cls = "ghc" + (lvl ? " l"+lvl : "") + (future ? " future" : "") + (key===TODAY ? " today" : "") + (key===State.selected ? " sel" : "");
+        cells.push(`<div class="${cls}" data-date="${key}" role="button" tabindex="0" aria-label="${title}" title="${title}"></div>`);
+      }
+    }
+    $("ghGrid").innerHTML = cells.join("");
+    let labels = "", w = 0;
+    while (w < WEEKS){
+      let c = w+1;
+      while (c < WEEKS && colMonth[c] === colMonth[w]) c++;
+      labels += `<span style="width:${(c-w)*16}px">${MONTHS[colMonth[w]]}</span>`;
+      w = c;
+    }
+    $("ghMonths").innerHTML = labels;
+    $("gridCaption").textContent = (bestKey && bestCount > 0)
+      ? `🔥 Most productive: ${new Date(bestKey+"T00:00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})} — ${bestCount} quest${bestCount>1?"s":""}`
+      : "Complete quests to light up the grid.";
+  },
+  open(date){
+    State.selected = date;
+    App.render();
+    try { $("questsAnchor").scrollIntoView({ behavior:"smooth", block:"start" }); } catch(e){}
+  }
+};
+
+/* ---------------- Stats ---------------- */
+const Stats = {
+  prev:{}, lastLevel:null,
+  setTile(id, val){
+    const el = $(id);
+    el.textContent = val;
+    if (this.prev[id] !== undefined && val > this.prev[id]){ el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+    this.prev[id] = val;
+  },
+  render(){
+    const q = Store.state.quests;
+    let tasksDone = 0, perfect = 0, daysLogged = 0;
+    for (const date in q){
+      const items = q[date]; if (!items || !items.length) continue;
+      daysLogged++;
+      tasksDone += items.filter(i => i.done && !i.rolled).length;
+      if (items.every(i => i.done)) perfect++;
+    }
+    const miles = Store.state.milestones.filter(m => m.done).length;
+    const mTotal = Store.state.milestones.length;
+    const focusMin = Math.round(Store.state.focusMin || 0);
+    this.setTile("wTasks", tasksDone);
+    this.setTile("wPerfect", perfect);
+    this.setTile("wFocus", focusMin);
+    this.setTile("wMiles", miles + (mTotal ? "/"+mTotal : ""));
+
+    const next = Store.state.milestones.find(m => !m.done);
+    $("nextMile").innerHTML = !mTotal
+      ? "🗺️ Break your goal into milestones — ask the assistant 🤖"
+      : next
+        ? `🗺️ Next milestone: <b>${esc(next.text)}</b> · ${miles}/${mTotal} done — ${mTotal-miles <= 3 ? "just " : ""}${mTotal-miles} to go`
+        : "🏆 <b>All milestones complete.</b>";
+
+    const xp = tasksDone*10 + miles*100 + Math.floor(focusMin/25)*5 + (Store.state.bonusXp||0);
+    const level = Math.floor(xp/100) + 1;
+    $("levelBadge").textContent = "Lv " + level;
+    $("levelName").textContent = LEVEL_NAMES[Math.min(level-1, LEVEL_NAMES.length-1)];
+    $("xpSub").textContent = xp + " XP";
+    $("xpToNext").textContent = (100 - xp%100) + " XP to Lv " + (level+1);
+    $("xpFill").style.width = (xp%100) + "%";
+
+    const streak = Calc.streak();
+    $("curStreak").textContent = streak;
+    const ph = Calc.phase();
+    $("hudSub").textContent = (ph ? `📅 Day ${ph.dayN}/${ph.total} · Phase ${ph.n}: ${ph.name} · ` : "") + `🏅 Best streak ${Calc.longest()} · 📅 ${daysLogged} days logged`;
+    $("motto").textContent = streak >= 1
+      ? `🔥 ${streak}-day streak. This is how invisible progress becomes visible. Don't break the chain.`
+      : (ph ? ph.motto : "The gym rule: nothing looks different for weeks, then suddenly everything does. Just keep showing up.");
+
+    if (this.lastLevel !== null && level > this.lastLevel){
+      FX.burst(); FX.toast("⚡ Level up! Lv " + level + " — " + LEVEL_NAMES[Math.min(level-1, LEVEL_NAMES.length-1)]);
+    }
+    this.lastLevel = level;
+  }
+};
+
+/* ---------------- Quests ---------------- */
+const Quests = {
+  render(){
+    const sel = State.selected;
+    const items = Store.day(sel);
+    const isToday = sel === TODAY, isFuture = sel > TODAY, isPast = sel < TODAY;
+
+    $("dayName").textContent = isToday ? "Today" : prettyDate(sel);
+    const badge = $("dayBadge");
+    badge.className = "badge " + (isToday ? "today" : isFuture ? "future" : "past");
+    badge.textContent = isToday ? "Today" : isFuture ? "Upcoming" : "Past";
+    $("datePicker").value = sel;
+    $("addRow").style.display = isPast ? "none" : "flex";
+    $("roNote").style.display = isPast ? "block" : "none";
+    if (isPast) $("roNote").textContent = "Past day — the record. Backfill a tick if you actually did it; adding/deleting is closed.";
+
+    const done = items.filter(i => i.done).length;
+    $("todoFrac").textContent = done + " of " + items.length + " done";
+    $("todoProgress").style.width = (items.length ? Math.round(100*done/items.length) : 0) + "%";
+
+    const list = $("todoList");
+    if (!items.length){
+      list.innerHTML = '<div class="empty">No quests' + (isPast ? ' this day.' : ' yet — add one, or tell the assistant 🤖 your plan.') + '</div>';
+    } else {
+      list.innerHTML = items.map(it => {
+        const chips = [];
+        if (it.carryCount) chips.push(`<span class="chip carry">↩ carried${it.carryCount>1?' ×'+it.carryCount:''}</span>`);
+        if (isPast && !it.done) chips.push('<span class="chip miss">missed</span>');
+        const focusBtn = (!it.done && isToday) ? `<button class="focusbtn" data-act="focus" aria-label="Start focus session">▶</button>` : "";
+        const delBtn = isPast ? "" : `<button class="del" data-act="del" aria-label="Delete">×</button>`;
+        return `
+        <li class="${it.done?'done':''}${(isPast && !it.done)?' miss':''}" data-id="${it.id}">
+          <button class="check" data-act="toggle" aria-label="${it.done?'Mark not done':'Mark done'}">${CHECK_SVG}</button>
+          <span class="task-main" data-act="toggle"><span class="ttext">${esc(it.text)}</span>${chips.join("")}</span>
+          ${focusBtn}${delBtn}
+        </li>`;
+      }).join("");
+    }
+    $("celebrate").style.display = (items.length && done === items.length) ? "block" : "none";
+    this.renderSummary(items, isToday, isFuture);
+  },
+  renderSummary(items, isToday, isFuture){
+    const box = $("daySummary");
+    if (isFuture){ box.innerHTML = ""; return; }
+    const done = items.filter(i => i.done).length;
+    const notDone = items.filter(i => !i.done);
+    const note = Store.state.notes[State.selected] || "";
+    let body;
+    if (!items.length) body = '<div class="ds-line" style="color:var(--muted)">No quests were set this day.</div>';
+    else if (notDone.length) body = `<div class="ds-line"><b>${done}/${items.length}</b> quests completed</div><div class="ds-missed">✗ Not completed: ${notDone.map(i => esc(i.text)).join(", ")}</div>`;
+    else body = `<div class="ds-line"><b>${done}/${items.length}</b> quests completed</div><div class="ds-clean">✓ Clean sweep!</div>`;
+    box.innerHTML = `
+      <div class="daysummary">
+        <div class="ds-title">📋 ${isToday ? "Today so far" : "End-of-day summary"}</div>${body}
+        <textarea class="ds-note" id="dayNote" placeholder="End-of-day note — what worked, what you missed and why (your mistake register), one lesson for tomorrow. Or ask 🤖 to write it.">${esc(note)}</textarea>
+        <div class="ds-hint">Saved automatically · synced to your account</div>
+      </div>`;
+    const ta = $("dayNote");
+    ta.addEventListener("change", () => { Store.state.notes[State.selected] = ta.value; Store.touch(); });
+  },
+  add(text, date){
+    const d = date || State.selected;
+    if (d < TODAY) return false;
+    const t = (text||"").trim(); if (!t) return false;
+    const items = Store.day(d);
+    items.push({ id: uid(), text:t, done:false });
+    Store.setDay(d, items);
+    return true;
+  },
+  syncPair(item, nowDone){
+    if (item.rolled){
+      const origin = item.carryOrigin || item.id;
+      const todays = Store.day(TODAY);
+      const copy = todays.find(c => (c.carryOrigin || c.id) === origin);
+      if (copy && copy.done !== nowDone){ copy.done = nowDone; Store.setDay(TODAY, todays); }
+    } else if (item.carriedFrom){
+      const origin = item.carryOrigin || item.id;
+      const orig = Store.day(item.carriedFrom).find(o => (o.carryOrigin || o.id) === origin || o.id === origin);
+      if (orig && orig.done !== nowDone){ orig.done = nowDone; Store.touch(); }
+    }
+  },
+  toggle(id, x, y){
+    if (State.selected > TODAY){ FX.toast("That day hasn't happened yet."); return; }
+    const items = Store.day(State.selected);
+    const target = items.find(i => i.id === id);
+    if (!target) return;
+    const becomingDone = !target.done;
+    const wasComplete = items.length > 0 && items.every(i => i.done);
+    target.done = becomingDone;
+    Store.setDay(State.selected, items);
+    this.syncPair(target, becomingDone);
+    App.render();
+    if (becomingDone && x != null){
+      if (Math.random() < LUCKY_ODDS){
+        Store.state.bonusXp = (Store.state.bonusXp||0) + 10; Store.touch();
+        FX.floatXP(x, y, "+20 XP"); FX.burst(x, y, 60); FX.toast("🎲 Lucky rep — double XP!");
+      } else FX.floatXP(x, y, "+10 XP");
+    }
+    const after = Store.day(State.selected);
+    if (after.length && after.every(i => i.done) && !wasComplete) FX.burst();
+  },
+  remove(id){
+    if (State.selected < TODAY) return;
+    Store.setDay(State.selected, Store.day(State.selected).filter(i => i.id !== id));
+    App.render();
+  },
+  completeByText(texts){
+    let n = 0;
+    const items = Store.day(TODAY);
+    for (const t of texts){
+      const needle = String(t).toLowerCase();
+      const hit = items.find(i => !i.done && i.text.toLowerCase().includes(needle.slice(0, 40)));
+      if (hit){ hit.done = true; this.syncPair(hit, true); n++; }
+    }
+    if (n) Store.setDay(TODAY, items);
+    return n;
+  }
+};
+
+/* ---------------- Focus ---------------- */
+const Focus = {
+  iv:null, KEY:"qb_focus",
+  session(){ try { return JSON.parse(localStorage.getItem(this.KEY)); } catch(e){ return null; } },
+  save(s){ s ? localStorage.setItem(this.KEY, JSON.stringify(s)) : localStorage.removeItem(this.KEY); },
+  start(date, id, text, mins){
+    mins = mins || Store.state.focusDur || 25;
+    this.save({ date, id, text, dur:mins*60, endAt:Date.now()+mins*60*1000, pausedRemaining:null, credited:false });
+    this.open();
+  },
+  setDuration(mins){
+    Store.state.focusDur = mins; Store.touch();
+    const s = this.session();
+    if (s){ s.dur = mins*60; s.endAt = Date.now()+mins*60*1000; s.pausedRemaining = null; s.credited = false; this.save(s); }
+    this.renderDurs(); this.tick();
+  },
+  renderDurs(){
+    const cur = this.session() ? this.session().dur/60 : (Store.state.focusDur||25);
+    document.querySelectorAll("#fDurs .fdur").forEach(b => b.classList.toggle("on", +b.dataset.mins === cur));
+  },
+  remaining(s){ return s.pausedRemaining != null ? s.pausedRemaining : Math.max(0, (s.endAt - Date.now())/1000); },
+  open(){
+    const s = this.session(); if (!s) return;
+    $("fTask").textContent = s.text;
+    $("focusOverlay").classList.add("open");
+    this.renderDurs(); this.tick();
+    if (this.iv) clearInterval(this.iv);
+    this.iv = setInterval(() => this.tick(), 500);
+  },
+  close(){
+    if (this.iv){ clearInterval(this.iv); this.iv = null; }
+    $("focusOverlay").classList.remove("open");
+    this.save(null);
+  },
+  tick(){
+    const s = this.session(); if (!s){ this.close(); return; }
+    const rem = this.remaining(s);
+    $("fTime").textContent = String(Math.floor(rem/60)).padStart(2,"0") + ":" + String(Math.floor(rem%60)).padStart(2,"0");
+    $("fTime").classList.toggle("paused", s.pausedRemaining != null);
+    $("fTime").classList.toggle("up", rem <= 0);
+    $("fRing").style.width = Math.min(100, Math.round(100*(1 - rem/s.dur))) + "%";
+    $("fPause").textContent = s.pausedRemaining != null ? "▶ Resume" : "⏸ Pause";
+    if (rem <= 0){
+      $("fState").textContent = "⏰ Time's up — bank the win.";
+      if (!s.credited){ s.credited = true; this.save(s); this.credit(s.dur/60); FX.toast("⏱ " + Math.round(s.dur/60) + " focused minutes banked."); App.render(); }
+    } else {
+      $("fState").textContent = s.pausedRemaining != null ? "Paused" : "Stay with it. One quest, nothing else.";
+    }
+  },
+  pauseResume(){
+    const s = this.session(); if (!s) return;
+    if (s.pausedRemaining != null){ s.endAt = Date.now() + s.pausedRemaining*1000; s.pausedRemaining = null; }
+    else s.pausedRemaining = Math.max(0, (s.endAt - Date.now())/1000);
+    this.save(s); this.tick();
+  },
+  credit(mins){ Store.state.focusMin = (Store.state.focusMin||0) + mins; Store.touch(); },
+  complete(){
+    const s = this.session(); if (!s) return;
+    if (!s.credited) this.credit((s.dur - this.remaining(s))/60);
+    const items = Store.day(s.date);
+    const t = items.find(i => i.id === s.id);
+    if (t && !t.done){ t.done = true; Store.setDay(s.date, items); Quests.syncPair(t, true); }
+    this.close(); App.render();
+    FX.floatXP(innerWidth/2, innerHeight*0.3, "+10 XP");
+  },
+  abandon(){
+    const s = this.session(); if (!s) return;
+    if (!s.credited) this.credit((s.dur - this.remaining(s))/60);
+    this.close(); App.render();
+    FX.toast("Session ended — the minutes you put in still count.");
+  },
+  restore(){ if (this.session()) this.open(); }
+};
+
+/* ---------------- Milestones ---------------- */
+const Miles = {
+  render(){
+    const ms = Store.state.milestones;
+    const n = ms.filter(m => m.done).length;
+    $("rmFrac").textContent = n + " / " + ms.length;
+    $("rmProgress").style.width = (ms.length ? Math.round(100*n/ms.length) : 0) + "%";
+    $("milestoneList").innerHTML = ms.length ? ms.map((m, i) => `
+      <li class="${m.done?'done':''}" data-mi="${i}">
+        <button class="check" data-act="mtoggle" aria-label="Toggle milestone">${CHECK_SVG}</button>
+        <span class="task-main" data-act="mtoggle"><span class="ttext">${esc(m.text)}</span></span>
+        <button class="del" data-act="mdel" aria-label="Delete">×</button>
+      </li>`).join("") : '<div class="empty">No milestones yet — add the rungs of your ladder, or ask the assistant to break down your goal.</div>';
+  },
+  add(text){
+    const t = (text||"").trim(); if (!t) return false;
+    Store.state.milestones.push({ id: uid(), text:t, done:false });
+    Store.touch(); return true;
+  },
+  toggle(i, x, y){
+    const m = Store.state.milestones[i]; if (!m) return;
+    m.done = !m.done; Store.touch(); App.render();
+    if (m.done){ FX.floatXP(x, y, "+100 XP"); FX.burst(); }
+  },
+  remove(i){ Store.state.milestones.splice(i,1); Store.touch(); App.render(); },
+  completeByText(texts){
+    let n = 0;
+    for (const t of texts){
+      const needle = String(t).toLowerCase();
+      const hit = Store.state.milestones.find(m => !m.done && m.text.toLowerCase().includes(needle.slice(0,40)));
+      if (hit){ hit.done = true; n++; }
+    }
+    if (n) Store.touch();
+    return n;
+  }
+};
+
+/* ---------------- Assistant ---------------- */
+const Assistant = {
+  history:[],
+  open(){ $("aiPanel").classList.add("open"); $("aiBubble").classList.remove("pulse"); $("aiText").focus(); },
+  close(){ $("aiPanel").classList.remove("open"); },
+  msg(role, text){
+    const el = document.createElement("div");
+    el.className = "ai-msg " + role;
+    el.textContent = text;
+    $("aiLog").appendChild(el);
+    $("aiLog").scrollTop = $("aiLog").scrollHeight;
+  },
+  act(text){
+    const el = document.createElement("div");
+    el.className = "ai-act"; el.textContent = "✔ " + text;
+    $("aiLog").appendChild(el);
+    $("aiLog").scrollTop = $("aiLog").scrollHeight;
+  },
+  system(){
+    const s = Store.state;
+    const todays = Store.day(TODAY).map(i => (i.done?"[done] ":"[open] ") + i.text).join("; ") || "none";
+    const miles = s.milestones.map(m => (m.done?"[done] ":"[open] ") + m.text).join("; ") || "none";
+    let missed7 = 0, done7 = 0;
+    for (let k = 1; k <= 7; k++){
+      const d = new Date(TODAY+"T00:00:00"); d.setDate(d.getDate()-k);
+      const its = Store.day(iso(d));
+      missed7 += its.filter(i => !i.done).length;
+      done7 += its.filter(i => i.done).length;
+    }
+    const ph = Calc.phase();
+    const uname = (s.profile && s.profile.name) || "";
+    return `You are the user's virtual accountability partner inside "Accountability Partner" — a companion they share their preparation with, who reflects back how accountable they are actually being. Today is ${TODAY}.
+THE CONSTITUTION you operate on (exam-prep psychology):
+- Long preparations have 3 phases. P1 (first ~30%): high motivation from dopamine/novelty — push them to bank reps while motivation is cheap. P2 (~30-75%): the grind — psychological distancing (goal feels far), perceived vs actual learning (they feel like failures despite progress), social comparison. Antidote: point at their log/streak — trust the record, not the feeling. P3 (last ~25%): anxiety — high goal value, wobbling self-belief, avoidance behavior. Yerkes-Dodson: moderate arousal is peak performance — reframe nerves as readiness/excitement.
+- Self-Determination Theory: protect Autonomy (they choose; you shape plans into SMART, finishable-today quests — small and immediate beats hyperbolic discounting), Competence (coach active recall over rereading, a mistake register in end-of-day notes, sleep for memory consolidation), Relatedness (you are the partner; after slips push self-compassion + restart, never shame spirals).
+- Hard days toolkit: friction design for distractions, urge surfing, progressive muscle relaxation, exercise.
+USER DATA: name: ${uname ? `"${uname}" (address them by name)` : "UNKNOWN — ask what to call them, then save it with set_name"}, preparing for / long-term goal: "${s.goals.longTerm||"UNKNOWN — ask them what exam/goal they are preparing for"}", target date: ${s.goals.targetDate||"not set"}${ph ? `, journey: day ${ph.dayN}/${ph.total} (Phase ${ph.n}: ${ph.name})` : ""}, weekly goal: "${s.goals.weekGoal||"not set"}", current streak: ${Calc.streak()} days, last 7 days: ${done7} quests done / ${missed7} missed, today's quests: ${todays}. Milestones: ${miles}.
+YOUR CHARACTER: an honest companion, not a cheerleader. Warm but blunt. When the record is good, name it specifically. When they keep missing tasks, deliver the brutal truth plainly — e.g. "That's ${missed7} misses this week. The people you're competing against did those reps. This is exactly how the 99% who fail, fail." — then IMMEDIATELY give the smallest next rep to restart. Attack the pattern, never the person. Reference their phase, streak and misses so they feel seen. You help with: turning plans into concrete daily quests (SMART: specific, finishable in a day), breaking long-term goals into milestones, writing honest end-of-day notes (include what was missed and one lesson — a mistake register), and completing items they say they did.
+You MUST reply with ONLY a JSON object, no markdown, in this exact shape:
+{"say":"your short conversational reply","actions":[...]}
+Allowed actions (use only when appropriate, else empty array):
+{"type":"add_quests","date":"YYYY-MM-DD","items":["task1","task2"]} (date optional, default today; use tomorrow's date if user says tomorrow)
+{"type":"complete_quests","items":["substring of quest text"]}
+{"type":"set_goals","longTerm":"...","targetDate":"YYYY-MM-DD","weekGoal":"..."} (only fields being changed)
+{"type":"add_milestones","items":["milestone1","milestone2"]}
+{"type":"complete_milestones","items":["substring"]}
+{"type":"set_note","date":"YYYY-MM-DD","note":"2-3 sentence end-of-day summary"} (date optional, default today)
+{"type":"set_name","name":"what to call the user"}
+{"type":"remove_quests","date":"YYYY-MM-DD","items":["substring of quest text"]} (today/future only)
+{"type":"remove_milestones","items":["substring"]}
+Rules: keep "say" under 60 words. Split vague plans into 1-4 concrete quests. When asked to summarize the day, look at done/open quests above and write an honest, kind note via set_note. Never invent completions the user didn't state.`;
+  },
+  async send(text){
+    if (!text.trim()) return;
+    this.msg("user", text);
+    this.history.push({ role:"user", text });
+    $("aiText").value = "";
+    const typing = document.createElement("div");
+    typing.className = "ai-typing"; typing.textContent = "thinking…";
+    $("aiLog").appendChild(typing);
+    try {
+      const res = await Api.call("POST", "/ai", { system:this.system(), messages:this.history.slice(-8) });
+      const j = await res.json().catch(() => ({}));
+      typing.remove();
+      if (!res.ok){ this.msg("sys", j.error || "Assistant unavailable right now."); return; }
+      let out;
+      try { out = JSON.parse(j.text); } catch(e){ out = { say:j.text, actions:[] }; }
+      this.apply(out.actions || []);
+      const say = out.say || "Done.";
+      this.msg("bot", say);
+      this.history.push({ role:"assistant", text: say });
+    } catch(e){
+      typing.remove();
+      this.msg("sys", "Couldn't reach the assistant — check your connection.");
+    }
+  },
+  apply(actions){
+    for (const a of actions){
+      try {
+        if (a.type === "add_quests"){
+          const date = a.date && /^\d{4}-\d{2}-\d{2}$/.test(a.date) && a.date >= TODAY ? a.date : TODAY;
+          let n = 0;
+          (a.items||[]).slice(0,8).forEach(t => { if (Quests.add(String(t).slice(0,160), date)) n++; });
+          if (n) this.act(`Added ${n} quest${n>1?"s":""} for ${date === TODAY ? "today" : date}`);
+        } else if (a.type === "complete_quests"){
+          const n = Quests.completeByText((a.items||[]).slice(0,8));
+          if (n) this.act(`Marked ${n} quest${n>1?"s":""} done`);
+        } else if (a.type === "set_goals"){
+          const g = Store.state.goals;
+          if (a.longTerm) g.longTerm = String(a.longTerm).slice(0,140);
+          if (a.targetDate && /^\d{4}-\d{2}-\d{2}$/.test(a.targetDate)) g.targetDate = a.targetDate;
+          if (a.weekGoal) g.weekGoal = String(a.weekGoal).slice(0,140);
+          Store.touch(); this.act("Updated your goals");
+        } else if (a.type === "add_milestones"){
+          let n = 0;
+          (a.items||[]).slice(0,15).forEach(t => { if (Miles.add(String(t).slice(0,120))) n++; });
+          if (n) this.act(`Added ${n} milestone${n>1?"s":""}`);
+        } else if (a.type === "complete_milestones"){
+          const n = Miles.completeByText((a.items||[]).slice(0,8));
+          if (n) this.act(`Completed ${n} milestone${n>1?"s":""} 🏆`);
+        } else if (a.type === "set_note"){
+          const date = a.date && /^\d{4}-\d{2}-\d{2}$/.test(a.date) && a.date <= TODAY ? a.date : TODAY;
+          if (a.note){ Store.state.notes[date] = String(a.note).slice(0,600); Store.touch(); this.act("Wrote your end-of-day note"); }
+        } else if (a.type === "set_name"){
+          if (a.name){
+            Store.state.profile = Store.state.profile || {};
+            Store.state.profile.name = String(a.name).slice(0,40);
+            Store.touch(); App.greet();
+            this.act("I'll call you " + Store.state.profile.name);
+          }
+        } else if (a.type === "remove_quests"){
+          const date = a.date && /^\d{4}-\d{2}-\d{2}$/.test(a.date) && a.date >= TODAY ? a.date : TODAY;
+          const items = Store.day(date);
+          let n = 0;
+          (a.items||[]).slice(0,8).forEach(t => {
+            const needle = String(t).toLowerCase();
+            const i = items.findIndex(x => x.text.toLowerCase().includes(needle.slice(0,40)));
+            if (i > -1){ items.splice(i,1); n++; }
+          });
+          if (n){ Store.setDay(date, items); this.act(`Removed ${n} quest${n>1?"s":""}`); }
+        } else if (a.type === "remove_milestones"){
+          let n = 0;
+          (a.items||[]).slice(0,8).forEach(t => {
+            const needle = String(t).toLowerCase();
+            const i = Store.state.milestones.findIndex(x => x.text.toLowerCase().includes(needle.slice(0,40)));
+            if (i > -1){ Store.state.milestones.splice(i,1); n++; }
+          });
+          if (n){ Store.touch(); this.act(`Removed ${n} milestone${n>1?"s":""}`); }
+        }
+      } catch(e){}
+    }
+    App.render();
+  },
+  nudge(){
+    const h = new Date().getHours();
+    if (!Store.day(TODAY).length && h >= 5 && h < 14) $("aiBubble").classList.add("pulse");
+    else if (h >= 20 && !Store.state.notes[TODAY] && Store.day(TODAY).length) $("aiBubble").classList.add("pulse");
+  }
+};
+
+/* ---------------- Feedback page ---------------- */
+const Feedback = {
+  open(){ $("fbOverlay").classList.add("open"); $("fbStatus").textContent = ""; },
+  close(){ $("fbOverlay").classList.remove("open"); },
+  async send(){
+    const t = $("fbText").value.trim();
+    if (!t){ $("fbStatus").textContent = "Write something first 🙂"; return; }
+    $("fbSend").disabled = true; $("fbStatus").textContent = "Sending…";
+    try {
+      const res = await Api.call("POST", "/feedback", { text: t });
+      if (res.ok){ $("fbText").value = ""; $("fbStatus").textContent = "✓ Received — thank you. Every note shapes the next version."; }
+      else $("fbStatus").textContent = "Couldn't send right now — try again in a bit.";
+    } catch(e){ $("fbStatus").textContent = "Couldn't send — check your connection."; }
+    $("fbSend").disabled = false;
+  }
+};
+
+/* ---------------- First-run guidance (shown once per device) ---------------- */
+const Tour = {
+  KEY:"qb_tour_v1", i:0, cb:null,
+  steps:[
+    { el:"addRow", text:"This is your day. Add small quests you can finish today — every tick builds your streak and XP." },
+    { el:"aiBubble", text:"Your accountability partner lives here. Tell it your plan in plain words — it sets up quests and milestones, and gives you the honest truth about your record." },
+    { el:"goalsSection", text:"Set what you're preparing for and the target date here. The board then tracks which phase of the journey you're in." },
+    { el:"ghGrid", text:"Your consistency grid — each productive day lights a square. The whole game: don't break the chain." }
+  ],
+  maybeStart(cb){
+    this.cb = cb || null;
+    if (localStorage.getItem(this.KEY)){ if (this.cb) this.cb(); return; }
+    this.i = 0; this.show();
+  },
+  finish(){
+    localStorage.setItem(this.KEY, "1");
+    this.hide();
+    if (this.cb) this.cb();
+  },
+  hide(){
+    const b = $("tipBox"); if (b) b.remove();
+    document.querySelectorAll(".tip-target").forEach(x => x.classList.remove("tip-target"));
+  },
+  show(){
+    this.hide();
+    if (this.i >= this.steps.length){ this.finish(); return; }
+    const st = this.steps[this.i], el = $(st.el);
+    if (!el){ this.i++; this.show(); return; }
+    try { el.scrollIntoView({ block:"center" }); } catch(e){}
+    el.classList.add("tip-target");
+    const box = document.createElement("div");
+    box.id = "tipBox";
+    box.innerHTML = `<div class="tip-step">Tip ${this.i+1} of ${this.steps.length}</div><div>${st.text}</div>
+      <div class="tip-btns"><button class="tip-skip">Skip</button><button class="tip-next">${this.i === this.steps.length-1 ? "Got it ✓" : "Next →"}</button></div>`;
+    document.body.appendChild(box);
+    const r = el.getBoundingClientRect();
+    let top = r.bottom + scrollY + 10;
+    if (r.bottom + box.offsetHeight + 20 > innerHeight) top = r.top + scrollY - box.offsetHeight - 10;
+    box.style.top = Math.max(scrollY + 10, top) + "px";
+    box.style.left = Math.max(12, Math.min(r.left + scrollX, scrollX + innerWidth - box.offsetWidth - 12)) + "px";
+    box.querySelector(".tip-next").onclick = () => { this.i++; this.show(); };
+    box.querySelector(".tip-skip").onclick = () => this.finish();
+  }
+};
+
+/* ---------------- App ---------------- */
+const App = {
+  greet(){
+    const name = (Store.state.profile && Store.state.profile.name) || "";
+    const h = new Date().getHours();
+    const part = h < 5 ? "Still at it" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+    $("greetLine").innerHTML = `${part}, <b>${esc(name || "champion")}</b> — small reps compound. Every check-off is XP.`;
+  },
+  render(){
+    const t = todayIso();
+    if (t !== TODAY){
+      const wasOnToday = State.selected === TODAY;
+      TODAY = t;
+      if (wasOnToday) State.selected = TODAY;
+      Store.rollover();
+    }
+    Quests.render(); Miles.render(); Grid.render(); Stats.render();
+    $("goalSum").textContent = Store.state.goals.longTerm ? "→ " + Store.state.goals.longTerm.slice(0,40) : "not set yet";
+  },
+  fillGoalInputs(){
+    $("gLong").value = Store.state.goals.longTerm || "";
+    $("gTarget").value = Store.state.goals.targetDate || "";
+    $("gWeek").value = Store.state.goals.weekGoal || "";
+  },
+  bind(){
+    document.addEventListener("click", e => {
+      const cell = e.target.closest("#ghGrid .ghc[data-date]");
+      if (cell){ Grid.open(cell.dataset.date); return; }
+      const li = e.target.closest("#todoList li[data-id]");
+      if (li){
+        const act = e.target.closest("[data-act]");
+        const kind = act && act.getAttribute("data-act");
+        if (kind === "toggle") Quests.toggle(li.dataset.id, e.clientX, e.clientY);
+        else if (kind === "del") Quests.remove(li.dataset.id);
+        else if (kind === "focus"){
+          const item = Store.day(State.selected).find(i => i.id === li.dataset.id);
+          if (item) Focus.start(State.selected, item.id, item.text);
+        }
+        return;
+      }
+      const ml = e.target.closest("#milestoneList li[data-mi]");
+      if (ml){
+        const act = e.target.closest("[data-act]");
+        const kind = act && act.getAttribute("data-act");
+        if (kind === "mtoggle") Miles.toggle(+ml.dataset.mi, e.clientX, e.clientY);
+        else if (kind === "mdel") Miles.remove(+ml.dataset.mi);
+        return;
+      }
+      const dur = e.target.closest("#fDurs .fdur");
+      if (dur){ Focus.setDuration(+dur.dataset.mins); return; }
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && $("focusOverlay").classList.contains("open")){ Focus.abandon(); return; }
+      if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("#ghGrid .ghc[data-date]")){
+        e.preventDefault(); Grid.open(e.target.dataset.date);
+      }
+    });
+    $("addBtn").addEventListener("click", () => { if (Quests.add($("taskInput").value)){ $("taskInput").value = ""; App.render(); } });
+    $("taskInput").addEventListener("keydown", e => { if (e.key === "Enter"){ if (Quests.add($("taskInput").value)){ $("taskInput").value = ""; App.render(); } } });
+    $("mileBtn").addEventListener("click", () => { if (Miles.add($("mileInput").value)){ $("mileInput").value = ""; App.render(); } });
+    $("mileInput").addEventListener("keydown", e => { if (e.key === "Enter"){ if (Miles.add($("mileInput").value)){ $("mileInput").value = ""; App.render(); } } });
+    $("datePicker").addEventListener("change", e => { State.selected = e.target.value || TODAY; App.render(); });
+    $("prevDay").addEventListener("click", () => { const d = new Date(State.selected+"T00:00:00"); d.setDate(d.getDate()-1); State.selected = iso(d); App.render(); });
+    $("nextDay").addEventListener("click", () => { const d = new Date(State.selected+"T00:00:00"); d.setDate(d.getDate()+1); State.selected = iso(d); App.render(); });
+    $("todayBtn").addEventListener("click", () => { State.selected = TODAY; App.render(); });
+    $("planBtn").addEventListener("click", () => { const d = new Date(TODAY+"T00:00:00"); d.setDate(d.getDate()+1); State.selected = iso(d); App.render(); $("taskInput").focus(); });
+    ["gLong","gTarget","gWeek"].forEach(id => $(id).addEventListener("change", () => {
+      Store.state.goals.longTerm = $("gLong").value.trim();
+      Store.state.goals.targetDate = $("gTarget").value;
+      Store.state.goals.weekGoal = $("gWeek").value.trim();
+      Store.touch(); App.render();
+    }));
+    $("themeToggle").addEventListener("click", () => {
+      const next = document.body.classList.contains("dark") ? "light" : "dark";
+      Store.state.theme = next; Store.touch(); App.theme();
+    });
+    $("logoutBtn").addEventListener("click", () => { Auth.clear(); location.reload(); });
+    $("fDone").addEventListener("click", () => Focus.complete());
+    $("fPause").addEventListener("click", () => Focus.pauseResume());
+    $("fQuit").addEventListener("click", () => Focus.abandon());
+    $("fbLink").addEventListener("click", () => Feedback.open());
+    $("fbBack").addEventListener("click", () => Feedback.close());
+    $("fbSend").addEventListener("click", () => Feedback.send());
+    $("aiBubble").addEventListener("click", () => $("aiPanel").classList.contains("open") ? Assistant.close() : Assistant.open());
+    $("aiClose").addEventListener("click", () => Assistant.close());
+    $("aiSend").addEventListener("click", () => Assistant.send($("aiText").value));
+    $("aiText").addEventListener("keydown", e => { if (e.key === "Enter") Assistant.send($("aiText").value); });
+    document.querySelectorAll(".ai-chip").forEach(c => c.addEventListener("click", () => { Assistant.open(); Assistant.send(c.dataset.q); }));
+    setInterval(() => { if (todayIso() !== TODAY) App.render(); }, 60000);
+    setInterval(() => Store.push(), 30000);
+    addEventListener("beforeunload", () => { if (Store.dirty) navigator.sendBeacon && Store.push(); });
+  },
+  theme(){
+    document.body.classList.toggle("dark", Store.state.theme === "dark");
+    $("themeToggle").textContent = Store.state.theme === "dark" ? "☀️" : "🌙";
+  },
+  async start(){
+    $("authOverlay").classList.add("hidden");
+    $("appWrap").style.display = "block";
+    $("aiBubble").style.display = "block";
+    await Store.pull();
+    Store.rollover();
+    this.theme();
+    this.fillGoalInputs();
+    this.render();
+    Focus.restore();
+    Assistant.nudge();
+    this.greet();
+    Tour.maybeStart(() => {
+      if (!Store.state.goals.longTerm){
+        Assistant.open();
+        Assistant.msg("bot", "Hey — I'm your accountability partner. 🤝 I'm here to keep you honest about the work, not just cheer. Let's set up: what should I call you, what are you preparing for (exam, goal, mission), and when's the date? I'll build your board around it.");
+        Assistant.history.push({ role:"assistant", text:"Asked user their name, what they're preparing for, and their deadline to set up the board." });
+      }
+    });
+  }
+};
+
+/* ---------------- Auth UI ---------------- */
+(function AuthUI(){
+  let pendingEmail = "", pendingPw = "";
+  const err = m => $("authErr").textContent = m || "";
+  const show = id => { ["authLogin","authSignup","authConfirm"].forEach(x => $(x).style.display = x === id ? "block" : "none"); err(""); };
+  $("toSignup").addEventListener("click", () => show("authSignup"));
+  $("toLogin").addEventListener("click", () => show("authLogin"));
+  $("liBtn").addEventListener("click", async () => {
+    err(""); $("liBtn").disabled = true;
+    try { await Auth.login($("liEmail").value.trim(), $("liPw").value); App.start(); }
+    catch(e){ err(e.message); }
+    $("liBtn").disabled = false;
+  });
+  $("suBtn").addEventListener("click", async () => {
+    err(""); $("suBtn").disabled = true;
+    pendingEmail = $("suEmail").value.trim(); pendingPw = $("suPw").value;
+    try { await Auth.signup(pendingEmail, pendingPw); show("authConfirm"); }
+    catch(e){ err(e.message); }
+    $("suBtn").disabled = false;
+  });
+  $("ccBtn").addEventListener("click", async () => {
+    err(""); $("ccBtn").disabled = true;
+    try {
+      await Auth.confirm(pendingEmail, $("ccCode").value.trim());
+      await Auth.login(pendingEmail, pendingPw);
+      App.start();
+    } catch(e){ err(e.message); }
+    $("ccBtn").disabled = false;
+  });
+  $("ccResend").addEventListener("click", async () => { try { await Auth.resend(pendingEmail); err("Code re-sent."); } catch(e){ err(e.message); } });
+  [["liPw","liBtn"],["suPw","suBtn"],["ccCode","ccBtn"]].forEach(([i,b]) =>
+    $(i).addEventListener("keydown", e => { if (e.key === "Enter") $(b).click(); }));
+})();
+
+/* ---------------- boot ---------------- */
+App.bind();
+(async () => {
+  const tok = await Auth.token();
+  if (tok) App.start();
+})();
+</script>
+</body>
+</html>

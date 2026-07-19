@@ -3,6 +3,19 @@ cloud/.env
 cloud/.qb_bucket
 cloud/.qb_artifacts
 cloud/dist/
+cloud/site/accountability-partner.apk
+
+# Android app build project — keep source, drop generated/local/secret files
+cloud/android-app/node_modules/
+cloud/android-app/android/keystore/
+cloud/android-app/android/local.properties
+cloud/android-app/android/.gradle/
+cloud/android-app/android/build/
+cloud/android-app/android/app/build/
+cloud/android-app/android/captures/
+cloud/android-app/android/.idea/
+cloud/android-app/android/**/*.iml
+cloud/android-app/build-env.sh
 
 # local-only files — kept on disk, not published
 /index.html

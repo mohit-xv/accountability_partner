@@ -55,7 +55,8 @@
   h1 { font-size:22px; margin:0; }
   .hdr-right { display:flex; align-items:center; gap:8px; }
   .sub { color:var(--muted); font-size:13px; margin:0; }
-  .iconbtn { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:9px; padding:6px 11px; font-size:13px; cursor:pointer; line-height:1; font-family:inherit; }
+  .sync-line { margin:-2px 0 6px; }
+  .iconbtn { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:9px; padding:6px 11px; font-size:13px; cursor:pointer; line-height:1; font-family:inherit; text-decoration:none; display:inline-block; }
   .iconbtn:hover { background:var(--track); }
   .lead { color:var(--muted); font-size:13px; margin:4px 0 16px; }
   .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; box-shadow:var(--shadow); }
@@ -333,7 +334,7 @@
   .cm-input button { border:none; background:var(--violet); color:#fff; border-radius:50%; width:44px; height:44px; font-size:15px; cursor:pointer; flex:none; }
   #cmStatus { font-size:12.5px; color:var(--red-ink); min-height:16px; margin-top:6px; }
   .hdr-right { position:relative; }
-  .hdr-menu { display:none; position:absolute; right:0; top:115%; background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:6px; z-index:9500; flex-direction:column; gap:4px; min-width:140px; }
+  .hdr-menu { display:none; position:absolute; right:0; top:115%; background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:6px; z-index:9500; flex-direction:column; gap:4px; min-width:140px; max-height:min(70vh,320px); overflow-y:auto; }
   .hdr-menu.open { display:flex; }
   .hdr-menu .iconbtn { border:none; text-align:left; width:100%; }
   #yNote { font-size:12.5px; color:var(--muted); background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 12px; margin-bottom:10px; }
@@ -375,8 +376,9 @@
     .card { padding:14px; border-radius:14px; }
     details.section .inner { padding:14px; }
     h1 { font-size:20px; }
-    .hdr-right { gap:6px; }
-    .iconbtn { padding:8px 10px; }
+    .hdr-right { gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+    .iconbtn { padding:8px 10px; font-size:12.5px; }
+    .sync-line { font-size:12px; }
     input[type="text"], input[type="email"], input[type="password"], textarea { font-size:16px; } /* stops iOS zoom-on-focus */
     .addrow input[type="text"] { padding:12px 14px; }
     .addbtn { padding:0 20px; min-height:46px; }
@@ -466,7 +468,7 @@
   <header class="top">
     <h1>Accountability Partner</h1>
     <div class="hdr-right">
-      <span class="sub" id="syncStatus"><span class="syncdot"></span>synced</span>
+      <a id="androidBtn" class="iconbtn" href="/accountability-partner.apk" download>📲 Android</a>
       <button id="fbBtn" class="iconbtn">💬 Community</button>
       <button id="menuBtn" class="iconbtn" aria-label="Menu">⋯</button>
       <div id="hdrMenu" class="hdr-menu">
@@ -476,6 +478,7 @@
       </div>
     </div>
   </header>
+  <div class="sync-line"><span class="sub" id="syncStatus"><span class="syncdot"></span>synced</span></div>
   <p class="lead" id="greetLine">Small reps compound. Every check-off is XP.</p>
 
   <div class="section-title primary" id="questsAnchor">✍️ Today's quests · your #1 focus</div>

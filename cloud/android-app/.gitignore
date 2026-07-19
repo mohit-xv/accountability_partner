@@ -1,0 +1,10 @@
+node_modules/
+android/keystore/
+android/local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/captures/
+android/.idea/
+*.iml
+build-env.sh

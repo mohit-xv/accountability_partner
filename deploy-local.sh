@@ -145,6 +145,10 @@ for icon in icon-180.png icon-192.png icon-512.png; do
   aws s3 cp "$CLOUD_DIR/site/$icon" "s3://$BUCKET/$icon" \
     --content-type "image/png" --region "$REGION" >/dev/null
 done
+if [ -f "$CLOUD_DIR/site/accountability-partner.apk" ]; then
+  aws s3 cp "$CLOUD_DIR/site/accountability-partner.apk" "s3://$BUCKET/accountability-partner.apk" \
+    --content-type "application/vnd.android.package-archive" --region "$REGION" >/dev/null
+fi
 
 SITE_URL="http://$BUCKET.s3-website.$REGION.amazonaws.com"
 
@@ -170,6 +174,12 @@ if [ -n "$CDN" ]; then
   done
   [ "$ok" = 1 ] || die "CDN check failed: $CDN did not serve the app"
   echo "   CDN OK (HTTPS live at $CDN)"
+fi
+
+if [ -f "$CLOUD_DIR/site/accountability-partner.apk" ]; then
+  code=$(curl -s -o /dev/null -w "%{http_code}" -m 15 "$SITE_URL/accountability-partner.apk")
+  [ "$code" = "200" ] || die "Android APK check failed: $SITE_URL/accountability-partner.apk returned $code"
+  echo "   Android APK OK (200 at $SITE_URL/accountability-partner.apk)"
 fi
 
 code=$(curl -s -o /dev/null -w "%{http_code}" -m 15 "$API/state")

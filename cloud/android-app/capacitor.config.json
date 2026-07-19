@@ -1,0 +1,13 @@
+{
+  "appId": "com.mohitxv.accountabilitypartner",
+  "appName": "Accountability Partner",
+  "webDir": "www",
+  "server": {
+    "url": "https://dwm0bg67p8h54.cloudfront.net",
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

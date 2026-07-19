@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Accountability Partner</string>
+    <string name="title_activity_main">Accountability Partner</string>
+    <string name="package_name">com.mohitxv.accountabilitypartner</string>
+    <string name="custom_url_scheme">com.mohitxv.accountabilitypartner</string>
+</resources>

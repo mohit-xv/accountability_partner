@@ -65,6 +65,7 @@ deploy_stack(){ # $1 = comma-joined allowed CORS origins ("" = template default 
   [ -n "${ADMIN_EMAIL:-}" ] && PARAMS+=("AdminEmail=$ADMIN_EMAIL")
   [ -n "${TG_TOKEN:-}" ] && PARAMS+=("TgToken=$TG_TOKEN")
   [ -n "${TG_CHAT:-}" ] && PARAMS+=("TgChat=$TG_CHAT")
+  [ -n "${SENDER_EMAIL:-}" ] && PARAMS+=("SenderEmail=$SENDER_EMAIL")
   if [ -n "$KNOWN_BUCKET" ]; then
     PARAMS+=("SiteDomain=$KNOWN_BUCKET.s3-website.$REGION.amazonaws.com")
     [ -n "$1" ] && PARAMS+=("SiteOrigin=$1")
@@ -136,6 +137,14 @@ aws s3api put-bucket-policy --bucket "$BUCKET" --policy "{
 echo ">> Uploading site"
 aws s3 cp "$CLOUD_DIR/dist/index.html" "s3://$BUCKET/index.html" \
   --content-type "text/html; charset=utf-8" --region "$REGION"
+aws s3 cp "$CLOUD_DIR/site/manifest.webmanifest" "s3://$BUCKET/manifest.webmanifest" \
+  --content-type "application/manifest+json" --region "$REGION" >/dev/null
+aws s3 cp "$CLOUD_DIR/site/sw.js" "s3://$BUCKET/sw.js" \
+  --content-type "application/javascript" --region "$REGION" >/dev/null
+for icon in icon-180.png icon-192.png icon-512.png; do
+  aws s3 cp "$CLOUD_DIR/site/$icon" "s3://$BUCKET/$icon" \
+    --content-type "image/png" --region "$REGION" >/dev/null
+done
 
 SITE_URL="http://$BUCKET.s3-website.$REGION.amazonaws.com"
 

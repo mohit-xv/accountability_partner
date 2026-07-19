@@ -37,8 +37,14 @@ Parameters:
     Default: ""
     Description: Telegram chat id to send feedback notifications to
 
+  SenderEmail:
+    Type: String
+    Default: ""
+    Description: Verified SES sender for streak-reminder emails (blank = reminders off)
+
 Conditions:
   HasSite: !Not [!Equals [!Ref SiteDomain, ""]]
+  HasSender: !Not [!Equals [!Ref SenderEmail, ""]]
 
 Resources:
 
@@ -68,17 +74,34 @@ Resources:
 
   StateTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       TableName: questboard-state
       BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
       AttributeDefinitions:
         - AttributeName: pk
+          AttributeType: S
+        - AttributeName: gsi1pk
+          AttributeType: S
+        - AttributeName: gsi1sk
           AttributeType: S
       KeySchema:
         - AttributeName: pk
           KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: gsi1
+          KeySchema:
+            - AttributeName: gsi1pk
+              KeyType: HASH
+            - AttributeName: gsi1sk
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
 
-  FnRole:
+  FnRole:  # state Lambda: full table access + user listing, no email powers
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -95,8 +118,59 @@ Resources:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
-                Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:DeleteItem, dynamodb:Scan]
+                Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:UpdateItem, dynamodb:DeleteItem, dynamodb:Scan, dynamodb:Query]
+                Resource:
+                  - !GetAtt StateTable.Arn
+                  - !Sub "${StateTable.Arn}/index/*"
+              - Effect: Allow
+                Action: [cognito-idp:ListUsers]
+                Resource: !GetAtt UserPool.Arn
+
+  AiRole:  # AI proxy: counter updates only — no scans, no email, no user listing
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: ddb
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [dynamodb:UpdateItem]
                 Resource: !GetAtt StateTable.Arn
+
+  ReminderRole:  # reminder: read-only table + user listing + send from our identities only
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: remind
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: [dynamodb:Scan, dynamodb:PutItem]
+                Resource: !GetAtt StateTable.Arn
+              - Effect: Allow
+                Action: [cognito-idp:ListUsers]
+                Resource: !GetAtt UserPool.Arn
+              - Effect: Allow
+                Action: [ses:SendEmail]
+                Resource: !Sub "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
 
   StateFn:
     Type: AWS::Lambda::Function
@@ -107,7 +181,7 @@ Resources:
       Timeout: 10
       Role: !GetAtt FnRole.Arn
       Environment:
-        Variables: { TABLE: !Ref StateTable, ADMIN: !Ref AdminEmail, TG_TOKEN: !Ref TgToken, TG_CHAT: !Ref TgChat }
+        Variables: { TABLE: !Ref StateTable, ADMIN: !Ref AdminEmail, TG_TOKEN: !Ref TgToken, TG_CHAT: !Ref TgChat, POOL: !Ref UserPool }
       Code: lambda/state
 
   AiFn:
@@ -117,7 +191,7 @@ Resources:
       Runtime: nodejs20.x
       Handler: index.handler
       Timeout: 25
-      Role: !GetAtt FnRole.Arn
+      Role: !GetAtt AiRole.Arn
       Environment:
         Variables:
           TABLE: !Ref StateTable
@@ -125,6 +199,42 @@ Resources:
           LIMIT: !Ref AiDailyLimit
           MODEL: !Ref ModelId
       Code: lambda/ai
+
+  ReminderFn:
+    Type: AWS::Lambda::Function
+    Condition: HasSender
+    Properties:
+      FunctionName: questboard-reminder
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Timeout: 120
+      Role: !GetAtt ReminderRole.Arn
+      Environment:
+        Variables:
+          TABLE: !Ref StateTable
+          POOL: !Ref UserPool
+          SENDER: !Ref SenderEmail
+          SITE: !If [HasSite, !Sub "https://${Cdn.DomainName}", ""]
+      Code: lambda/reminder
+
+  ReminderRule:
+    Type: AWS::Events::Rule
+    Condition: HasSender
+    Properties:
+      Description: Daily streak-risk email at 20:00 IST
+      ScheduleExpression: cron(30 14 * * ? *)
+      Targets:
+        - Arn: !GetAtt ReminderFn.Arn
+          Id: reminder
+
+  ReminderInvokePermission:
+    Type: AWS::Lambda::Permission
+    Condition: HasSender
+    Properties:
+      FunctionName: !Ref ReminderFn
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt ReminderRule.Arn
 
   Api:
     Type: AWS::ApiGatewayV2::Api
@@ -190,6 +300,15 @@ Resources:
       AuthorizerId: !Ref JwtAuth
       Target: !Sub "integrations/${Integration}"
 
+  RouteStats:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref Api
+      RouteKey: "GET /stats"
+      AuthorizationType: JWT
+      AuthorizerId: !Ref JwtAuth
+      Target: !Sub "integrations/${Integration}"
+
   RouteCommunityGet:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -231,6 +350,14 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/*/state"
+
+  StatsPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref StateFn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/*/stats"
 
   CommunityPermission:
     Type: AWS::Lambda::Permission

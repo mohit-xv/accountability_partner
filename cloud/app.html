@@ -4,6 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Accountability Partner — small reps compound</title>
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Partner">
+<meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f131a" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Your virtual accountability partner — daily quests, streaks, and an honest AI companion that keeps you on track.">
+<meta property="og:title" content="Accountability Partner">
+<meta property="og:description" content="Daily quests, streaks, and an honest AI companion that keeps you on track. Free.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://dwm0bg67p8h54.cloudfront.net">
+<meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -24,6 +38,7 @@
   body.dark {
     color-scheme: dark;
     --bg:#0f131a; --card:#171c26; --card2:#1b212c; --ink:#e7ebf3; --muted:#93a0b4; --line:#28303d;
+    --blue:#60a5fa; --green:#4ade80; --violet:#a78bfa; --red:#f87171; --amber:#fbbf24;
     --track:#232b38; --hud2:#1d1830;
     --accent-soft:#2a1d12; --accent-ink:#f0a868; --accent-border:#4a3016;
     --green-soft:#12241b;
@@ -267,6 +282,15 @@
 
   /* ===== buttery micro-interactions ===== */
   html { scroll-behavior:smooth; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--line); border-radius:99px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--muted); }
+  .wrap > * { animation:rise .45s ease both; }
+  .wrap > *:nth-child(2){ animation-delay:.04s } .wrap > *:nth-child(3){ animation-delay:.08s }
+  .wrap > *:nth-child(4){ animation-delay:.12s } .wrap > *:nth-child(n+5){ animation-delay:.16s }
+  @keyframes rise { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce){ .wrap > * { animation:none; } }
   button { transition:background .15s ease, border-color .15s ease, opacity .15s ease, transform .08s ease; }
   button:active { transform:scale(.96); }
   .card, details.section { transition:box-shadow .2s ease; }
@@ -308,6 +332,39 @@
   .cm-input input { flex:1; border-radius:999px; padding:11px 16px; font-size:16px; }
   .cm-input button { border:none; background:var(--violet); color:#fff; border-radius:50%; width:44px; height:44px; font-size:15px; cursor:pointer; flex:none; }
   #cmStatus { font-size:12.5px; color:var(--red-ink); min-height:16px; margin-top:6px; }
+  .hdr-right { position:relative; }
+  .hdr-menu { display:none; position:absolute; right:0; top:115%; background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:6px; z-index:9500; flex-direction:column; gap:4px; min-width:140px; }
+  .hdr-menu.open { display:flex; }
+  .hdr-menu .iconbtn { border:none; text-align:left; width:100%; }
+  #yNote { font-size:12.5px; color:var(--muted); background:var(--card2); border:1px solid var(--line); border-radius:10px; padding:8px 12px; margin-bottom:10px; }
+  #yNote b { color:var(--ink); }
+  .ynote-x { border:none; background:none; color:var(--muted); cursor:pointer; font-size:14px; padding:0 4px; float:right; }
+  .wk-lessons { text-align:left; margin-top:14px; font-size:12.5px; color:var(--muted); }
+  .wk-les { margin-bottom:5px; }
+  .wk-les b { color:var(--ink); }
+  .wk-ritual { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+  .wk-ritual input { width:100%; font-size:16px; border-radius:10px; padding:10px 12px; }
+  #sosOverlay { position:fixed; inset:0; background:var(--bg); z-index:10850; display:none; overflow-y:auto; padding:24px 18px 40px; }
+  #sosOverlay.open { display:block; }
+  .sos-card { border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-top:12px; background:var(--card); text-align:left; }
+  .sos-card h3 { font-size:14.5px; margin:0 0 6px; }
+  .sos-card p { font-size:13.5px; color:var(--muted); margin:0; line-height:1.55; }
+  .wk-link { text-align:center; margin-top:10px; font-size:13px; }
+  .wk-link a { color:var(--blue); cursor:pointer; text-decoration:underline; }
+  #wkOverlay { position:fixed; inset:0; background:var(--bg); z-index:10800; display:none; overflow-y:auto; padding:24px 18px 40px; }
+  #wkOverlay.open { display:block; }
+  .wk-card { margin-top:16px; border:1px solid var(--line); border-radius:20px; padding:24px 20px; background:linear-gradient(150deg,var(--card),var(--hud2)); box-shadow:var(--shadow); text-align:center; }
+  .wk-card h2 { font-size:20px; margin:0 0 2px; letter-spacing:-.01em; }
+  .wk-range { color:var(--muted); font-size:12.5px; margin-bottom:16px; }
+  .wk-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0; }
+  @media (max-width:480px){ .wk-grid { grid-template-columns:repeat(2,1fr); } }
+  .wk-verdict { margin-top:14px; font-size:14px; color:var(--blue-ink); background:var(--soft-blue); border:1px solid var(--soft-blue-border); border-radius:12px; padding:12px 14px; }
+  .wk-streak { font-size:15px; margin-top:10px; }
+  .st-sec { margin-top:16px; }
+  .st-title { font-size:11.5px; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); font-weight:700; margin-bottom:8px; }
+  .st-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(105px,1fr)); gap:9px; }
+  .st-grid .wtile { padding:11px 6px; }
+  .st-grid .wn { font-size:22px; }
   .cm-name { display:flex; gap:8px; margin-bottom:10px; }
   .cm-name input { flex:1; border-radius:10px; padding:9px 13px; font-size:16px; }
   .cm-name button { border:1px solid var(--soft-blue-border); background:var(--soft-blue); color:var(--blue-ink); border-radius:10px; padding:0 14px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; flex:none; }
@@ -334,6 +391,8 @@
     .f-time { font-size:64px; }
     #aiPanel { right:8px; left:8px; width:auto; bottom:84px; height:min(65vh,540px); }
     #aiBubble { right:14px; bottom:14px; }
+    .datenav input[type="date"] { position:absolute; opacity:0; width:1px; height:1px; padding:0; border:none; } /* day name is the tap target instead */
+    .daytitle .dname { cursor:pointer; text-decoration:underline dotted; text-underline-offset:3px; }
     .fb-wrap { padding-bottom:24px; }
     #tipBox { max-width:86vw; }
   }
@@ -352,7 +411,7 @@
       <label>Email</label><input type="email" id="liEmail" autocomplete="email">
       <label>Password</label><input type="password" id="liPw" autocomplete="current-password">
       <button class="authbtn" id="liBtn">Log in</button>
-      <div class="authalt">New here? <a id="toSignup">Create an account</a></div>
+      <div class="authalt">New here? <a id="toSignup">Create an account</a> · <a id="toForgot">Forgot password?</a></div>
     </div>
     <div id="authSignup" style="display:none;">
       <label>Email</label><input type="email" id="suEmail" autocomplete="email">
@@ -366,14 +425,29 @@
       <button class="authbtn" id="ccBtn">Confirm & start</button>
       <div class="authalt"><a id="ccResend">Resend code</a></div>
     </div>
+    <div id="authForgot" style="display:none;">
+      <p class="as">We'll email you a reset code.</p>
+      <label>Email</label><input type="email" id="fpEmail" autocomplete="email">
+      <button class="authbtn" id="fpBtn">Send reset code</button>
+      <div class="authalt"><a id="toLogin2">Back to log in</a></div>
+    </div>
+    <div id="authReset" style="display:none;">
+      <p class="as">Check your email for the code.</p>
+      <label>Reset code</label><input type="text" id="fpCode" inputmode="numeric">
+      <label>New password (8+ characters)</label><input type="password" id="fpPw" autocomplete="new-password">
+      <button class="authbtn" id="fpSetBtn">Set new password</button>
+    </div>
     <div class="autherr" id="authErr"></div>
+    <div class="authalt" style="margin-top:16px;"><a id="guestBtn">Try it first — no account needed</a></div>
+    <div class="authalt" style="font-size:11.5px; margin-top:10px;">Free forever · your email is used only for login and streak reminders — never shared.</div>
+    <div class="authalt" style="font-size:11.5px;"><a id="authScience">Why this works — the science →</a></div>
   </div>
 </div>
 
 <!-- focus -->
 <div id="focusOverlay" role="dialog" aria-modal="true" aria-label="Focus session">
   <div class="f-task" id="fTask"></div>
-  <div class="f-sub">Focus session · everything else can wait · Esc to end</div>
+  <div class="f-sub">Focus session · everything else can wait · Esc to end · <a id="fSos" style="color:var(--blue);cursor:pointer;text-decoration:underline;">SOS</a></div>
   <div class="f-durs" id="fDurs">
     <button class="fdur" data-mins="25">25 min</button>
     <button class="fdur" data-mins="50">50 min</button>
@@ -393,9 +467,13 @@
     <h1>Accountability Partner</h1>
     <div class="hdr-right">
       <span class="sub" id="syncStatus"><span class="syncdot"></span>synced</span>
-      <button id="fbBtn" class="iconbtn">💬 Feedback</button>
-      <button id="themeToggle" class="iconbtn" aria-label="Toggle theme">🌙</button>
-      <button id="logoutBtn" class="iconbtn">Log out</button>
+      <button id="fbBtn" class="iconbtn">💬 Community</button>
+      <button id="menuBtn" class="iconbtn" aria-label="Menu">⋯</button>
+      <div id="hdrMenu" class="hdr-menu">
+        <button id="soundToggle" class="iconbtn">🔊 Sound</button>
+        <button id="themeToggle" class="iconbtn">🌙 Theme</button>
+        <button id="logoutBtn" class="iconbtn">Log out</button>
+      </div>
     </div>
   </header>
   <p class="lead" id="greetLine">Small reps compound. Every check-off is XP.</p>
@@ -419,6 +497,7 @@
       <button class="addbtn" id="addBtn">Add</button>
     </div>
     <p class="readonly-note" id="roNote" style="display:none;"></p>
+    <div id="yNote" style="display:none;"></div>
     <ul class="qlist" id="todoList"></ul>
     <div class="celebrate" id="celebrate">🎉 All quests cleared for this day — full rep!</div>
     <div id="daySummary"></div>
@@ -436,17 +515,20 @@
       <div class="flame">🔥</div>
       <div><div class="streaknum" id="curStreak">0</div><div class="streaklbl">day streak</div></div>
     </div>
+    <div class="xpbar" style="flex-basis:100%; margin:10px 0 4px;"><span id="xpFill" style="width:0%"></span></div>
+    <div class="hudsub" id="hudSub" style="flex-basis:100%;"></div>
   </div>
-  <div class="xpbar"><span id="xpFill" style="width:0%"></span></div>
-  <div class="hudsub" id="hudSub"></div>
 
-  <div class="wins-grid">
-    <div class="wtile"><div class="wn" id="wTasks">0</div><div class="wk">✅ Quests done</div></div>
-    <div class="wtile"><div class="wn" id="wPerfect">0</div><div class="wk">🌟 Perfect days</div></div>
-    <div class="wtile"><div class="wn" id="wFocus">0</div><div class="wk">⏱ Focus min</div></div>
-    <div class="wtile"><div class="wn" id="wMiles">0</div><div class="wk">🗺️ Milestones</div></div>
+  <div class="card" style="margin-top:14px;">
+    <div class="wins-grid" style="margin-top:0;">
+      <div class="wtile"><div class="wn" id="wTasks">0</div><div class="wk">✅ Quests done</div></div>
+      <div class="wtile"><div class="wn" id="wPerfect">0</div><div class="wk">🌟 Perfect days</div></div>
+      <div class="wtile"><div class="wn" id="wFocus">0</div><div class="wk">⏱ Focus min</div></div>
+      <div class="wtile"><div class="wn" id="wMiles">0</div><div class="wk">🗺️ Milestones</div></div>
+    </div>
+    <div class="nextmile" id="nextMile"></div>
+    <div class="wk-link"><a id="weeklyBtn">📅 See your weekly review →</a></div>
   </div>
-  <div class="nextmile" id="nextMile"></div>
 
   <div class="section-title">🟩 Productivity grid · darker = more done</div>
   <div class="card">
@@ -481,23 +563,47 @@
       <div class="goalrow"><span class="glabel">🌠 Long-term</span><input type="text" id="gLong" placeholder="e.g. Crack the exam · Get fit · Ship my app" maxlength="140"></div>
       <div class="goalrow"><span class="glabel">📅 Target date</span><input type="date" id="gTarget"></div>
       <div class="goalrow"><span class="glabel">🗓️ This week</span><input type="text" id="gWeek" placeholder="What makes this week a win?" maxlength="140"></div>
+      <div class="goalrow"><span class="glabel">🔔 Reminders</span><label style="font-size:13px; display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" id="gRemind" checked style="width:auto;"> Streak reminder emails</label></div>
     </div>
   </details>
 
   <div class="motto" id="motto"></div>
+  <div class="wk-link"><a id="sosBtn">🧘 Having a hard moment? →</a></div>
   <footer>Syncs to your account — pick up on any device · <a id="fbLink">Feedback &amp; the science behind this</a></footer>
+</div>
+
+<!-- SOS toolkit -->
+<div id="sosOverlay" role="dialog" aria-label="SOS toolkit">
+  <div class="fb-wrap">
+    <button class="iconbtn" id="sosBack">← Back</button>
+    <h2 style="font-size:21px; margin:18px 0 4px;">🧘 60-second rescue kit</h2>
+    <p class="fb-sub">For the moment the urge to quit — or scroll — hits. Pick one. Each takes about a minute.</p>
+    <div class="sos-card"><h3>🌊 Urge surfing</h3><p>Don't fight the urge — watch it. Name it out loud ("I want to check my phone"). Notice where it sits in your body. Breathe slowly and watch it like a wave: it rises, peaks… and passes in about 90 seconds. You don't have to obey it — just outlast it.</p></div>
+    <div class="sos-card"><h3>💪 Muscle reset (PMR)</h3><p>Clench your fists hard for 5 seconds — release. Shoulders up to your ears, 5 seconds — release. Jaw tight, 5 — release. Legs, 5 — release. One pass drains the physical charge that anxiety rides on.</p></div>
+    <div class="sos-card"><h3>⚡ Rename the nerves</h3><p>Say it out loud: "I'm not anxious — I'm ready." Same racing heart, same alert brain; one label freezes you, the other fuels you. Then do the smallest possible rep: open the book, one problem, two minutes.</p></div>
+  </div>
+</div>
+
+<!-- weekly review -->
+<div id="wkOverlay" role="dialog" aria-label="Weekly review">
+  <div class="fb-wrap">
+    <button class="iconbtn" id="wkBack">← Back to board</button>
+    <div class="wk-card" id="wkCard"></div>
+    <div style="text-align:center; margin-top:14px;">
+      <button class="fb-send" id="wkShare" style="width:auto;">Share this week</button>
+    </div>
+  </div>
 </div>
 
 <!-- feedback page -->
 <div id="fbOverlay" role="dialog" aria-label="Feedback">
   <div class="fb-wrap">
     <button class="iconbtn" id="fbBack">← Back to board</button>
-    <h2>💬 Help make Accountability Partner better</h2>
-    <p class="fb-sub">What's confusing? What's missing? What would make you open this every single day? Your note goes straight to the maker.</p>
-    <textarea id="fbText" maxlength="2000" placeholder="Be blunt — brutal feedback is the most useful kind."></textarea>
-    <div><button class="fb-send" id="fbSend">Send feedback</button></div>
-    <div id="fbStatus"></div>
-    <div class="cm-sec">
+    <div id="adminStats" style="display:none;">
+      <h2>📊 Admin — how the site is doing</h2>
+      <div id="stGrid"></div>
+    </div>
+    <div class="cm-sec" style="border-top:none; padding-top:0; margin-top:16px;">
       <h3>🗣️ Community</h3>
       <p class="cm-sub">Talk with fellow climbers — fully anonymous. You appear under a pseudonym; your email and identity are never shown to anyone.</p>
       <div id="cmMe"></div>
@@ -511,6 +617,13 @@
         <button id="cmSend" aria-label="Send">➤</button>
       </div>
       <div id="cmStatus"></div>
+    </div>
+    <div class="cm-sec">
+      <h3>💬 Help make Accountability Partner better</h3>
+      <p class="fb-sub">What's confusing? What's missing? What would make you open this every single day? Your note goes straight to the maker.</p>
+      <textarea id="fbText" maxlength="2000" placeholder="Be blunt — brutal feedback is the most useful kind."></textarea>
+      <div><button class="fb-send" id="fbSend">Send feedback</button></div>
+      <div id="fbStatus"></div>
     </div>
     <div class="fb-const">
       <h3>📜 The science Accountability Partner is built on</h3>
@@ -556,6 +669,10 @@
    Placeholders injected at deploy: __API_URL__ __CLIENT_ID__ __REGION__
    ============================================================ */
 const CONFIG = { api:"__API_URL__", clientId:"__CLIENT_ID__", region:"__REGION__" };
+
+const prefersDark = matchMedia && matchMedia("(prefers-color-scheme: dark)").matches;
+if (prefersDark) document.body.classList.add("dark"); // pre-login; user's saved theme wins after login
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 
 const LEVEL_NAMES = ["Getting Started","Warming Up","Finding Rhythm","On a Roll","Committed","Locked In","Relentless","Unstoppable","Peak Climber","Legend"];
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -630,8 +747,9 @@ const Api = {
 /* ---------------- Store: local cache + cloud sync ---------------- */
 const Store = {
   state:null, dirty:false, timer:null, online:true,
-  blank(){ return { v:1, profile:{ name:"" }, goals:{ longTerm:"", targetDate:"", weekGoal:"", startDate:TODAY }, milestones:[], quests:{}, notes:{}, focusMin:0, bonusXp:0, focusDur:25, theme:"light" }; },
-  cacheKey(){ return "qb_state_" + (Auth.sub() || "anon"); },
+  blank(){ return { v:1, profile:{ name:"" }, goals:{ longTerm:"", targetDate:"", weekGoal:"", startDate:TODAY }, milestones:[], quests:{}, notes:{}, del:{}, focusMin:0, bonusXp:0, focusDur:25, theme: prefersDark ? "dark" : "light", sound:true }; },
+  uid:null,
+  cacheKey(){ return "qb_state_" + (this.uid || Auth.sub() || "anon"); },
   loadCache(){ try { return JSON.parse(localStorage.getItem(this.cacheKey())); } catch(e){ return null; } },
   saveCache(){ try { localStorage.setItem(this.cacheKey(), JSON.stringify(this.state)); } catch(e){} },
   day(date){ return this.state.quests[date] || []; },
@@ -643,12 +761,45 @@ const Store = {
   },
   async push(){
     if (!this.dirty) return;
+    if (App.guest){ this.online = false; UI.syncStatus(); return; }
+    this.dirty = false; // edits during flight re-set it via touch()
     try {
+      // merge remote in first so a stale device can never clobber a newer one
+      const g = await Api.call("GET", "/state");
+      if (g.ok){
+        const remote = await g.json().catch(() => null);
+        if (remote && remote.v){
+          const before = JSON.stringify(this.state);
+          this.state = this.merge(remote, this.state) || this.state; // local wins scalars, union + tombstones for lists
+          if (JSON.stringify(this.state) !== before){ this.saveCache(); App.render(); }
+        }
+      }
       const res = await Api.call("PUT", "/state", this.state);
       this.online = res.ok;
-      if (res.ok) this.dirty = false;
-    } catch(e){ this.online = false; }
+      if (!res.ok) this.dirty = true;
+    } catch(e){
+      this.online = false; this.dirty = true;
+      if (String(e && e.message).includes("not logged in")) UI.sessionExpired();
+    }
     UI.syncStatus();
+  },
+  // best-effort synchronous-ish flush for tab close / app switch (fetch keepalive survives unload)
+  pushNow(){
+    const ta = document.getElementById("dayNote");
+    if (ta && ta.value !== (this.state.notes[State.selected] || "")){
+      this.state.notes[State.selected] = ta.value; this.saveCache(); this.dirty = true;
+    }
+    if (!this.dirty || App.guest) return;
+    const t = Auth.tokens(); if (!t || !t.id) return;
+    try {
+      fetch(CONFIG.api + "/state", {
+        method:"PUT",
+        headers:{ "Authorization":"Bearer "+t.id, "Content-Type":"application/json" },
+        body: JSON.stringify(this.state),
+        keepalive:true
+      });
+      this.dirty = false;
+    } catch(e){}
   },
   async pull(){
     try {
@@ -677,12 +828,13 @@ const Store = {
       weekGoal: b.goals.weekGoal || a.goals.weekGoal || "",
       startDate: [a.goals.startDate, b.goals.startDate].filter(Boolean).sort()[0] || TODAY
     };
+    out.del = { ...(a.del || {}), ...(b.del || {}) }; // tombstones: deletions win over stale copies
     const mById = {};
     [...(a.milestones||[]), ...(b.milestones||[])].forEach(m => {
       if (!mById[m.id]) mById[m.id] = { ...m };
       else mById[m.id].done = mById[m.id].done || m.done;
     });
-    out.milestones = Object.values(mById);
+    out.milestones = Object.values(mById).filter(m => !out.del[m.id]);
     const dates = new Set([...Object.keys(a.quests||{}), ...Object.keys(b.quests||{})]);
     dates.forEach(d => {
       const byId = {};
@@ -690,7 +842,7 @@ const Store = {
         if (!byId[it.id]) byId[it.id] = { ...it };
         else { byId[it.id].done = byId[it.id].done || it.done; byId[it.id].rolled = byId[it.id].rolled || it.rolled; }
       });
-      out.quests[d] = Object.values(byId);
+      out.quests[d] = Object.values(byId).filter(it => !out.del[it.id]);
     });
     const nd = new Set([...Object.keys(a.notes||{}), ...Object.keys(b.notes||{})]);
     nd.forEach(d => { const x = (a.notes||{})[d] || "", y = (b.notes||{})[d] || ""; out.notes[d] = y.length >= x.length ? y : x; });
@@ -698,9 +850,16 @@ const Store = {
     out.bonusXp = Math.max(a.bonusXp||0, b.bonusXp||0);
     out.focusDur = b.focusDur || a.focusDur || 25;
     out.theme = b.theme || a.theme || "light";
+    out.sound = b.sound !== undefined ? b.sound : (a.sound !== undefined ? a.sound : true);
     return out;
   },
+  tombstone(id){
+    this.state.del = this.state.del || {};
+    this.state.del[id] = Date.now();
+  },
   rollover(){
+    const del = this.state.del || {};
+    for (const k in del){ if (Date.now() - del[k] > 30*86400000) delete del[k]; }
     const s = this.state.quests; let changed = false;
     for (const d of Object.keys(s).filter(k => k < TODAY).sort()){
       for (const it of s[d]){
@@ -756,12 +915,25 @@ const FX = (() => {
 /* ---------------- computed stats (no coach needed) ---------------- */
 const Calc = {
   dayDone(date){ return Store.day(date).some(i => i.done); },
-  streak(){
-    let s = 0; let d = new Date(TODAY+"T00:00:00");
-    if (!this.dayDone(TODAY)) d.setDate(d.getDate()-1);
-    while (this.dayDone(iso(d))){ s++; d.setDate(d.getDate()-1); }
-    return s;
+  // Streak with shields: every 7 consecutive days banks a shield (max 2); a missed
+  // day consumes one instead of zeroing the chain — self-compassion, kept honest.
+  streakInfo(){
+    let start = Store.state.goals.startDate || TODAY;
+    for (const k in Store.state.quests){ if (Store.state.quests[k].length && k < start) start = k; }
+    let streak = 0, shields = 0;
+    const d = new Date(start + "T00:00:00");
+    for (let k = iso(d); k <= TODAY; d.setDate(d.getDate()+1), k = iso(d)){
+      if (this.dayDone(k)){
+        streak++;
+        if (streak % 7 === 0 && shields < 2) shields++;
+      } else if (k !== TODAY && streak > 0){
+        if (shields > 0) shields--;
+        else streak = 0;
+      }
+    }
+    return { streak, shields };
   },
+  streak(){ return this.streakInfo().streak; },
   longest(){
     const dates = Object.keys(Store.state.quests).filter(d => this.dayDone(d)).sort();
     let best = 0, run = 0, prev = null;
@@ -791,9 +963,17 @@ const Calc = {
 const UI = {
   syncStatus(){
     const el = $("syncStatus");
+    if (App.guest){ el.innerHTML = '<span class="syncdot off"></span>guest — local only'; return; }
     el.innerHTML = Store.online
       ? '<span class="syncdot"></span>synced'
       : '<span class="syncdot off"></span>offline — will sync';
+  },
+  expiredShown:false,
+  sessionExpired(){
+    if (this.expiredShown) return;
+    this.expiredShown = true;
+    FX.toast("Session expired — please log in again. Your data is safe.");
+    setTimeout(() => location.reload(), 2200);
   }
 };
 
@@ -843,7 +1023,11 @@ const Grid = {
       w = c;
     }
     $("ghMonths").innerHTML = labels;
-    const sc = $("ghScroll"); sc.scrollLeft = sc.scrollWidth; // land on the present, like GitHub
+    const sc = $("ghScroll");
+    const wasAtEnd = !this.drawn || sc.scrollLeft + sc.clientWidth >= sc.scrollWidth - 24;
+    const prevScroll = sc.scrollLeft;
+    sc.scrollLeft = wasAtEnd ? sc.scrollWidth : prevScroll; // land on the present, but don't yank users out of past months
+    this.drawn = true;
     $("gridCaption").textContent = (bestKey && bestCount > 0)
       ? `🔥 Most productive: ${new Date(bestKey+"T00:00:00").toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})} — ${bestCount} quest${bestCount>1?"s":""}`
       : "Complete quests to light up the grid.";
@@ -896,13 +1080,18 @@ const Stats = {
     $("xpToNext").textContent = (100 - xp%100) + " XP to Lv " + (level+1);
     $("xpFill").style.width = (xp%100) + "%";
 
-    const streak = Calc.streak();
+    const si = Calc.streakInfo();
+    const streak = si.streak;
     $("curStreak").textContent = streak;
     const ph = Calc.phase();
-    $("hudSub").textContent = (ph ? `📅 Day ${ph.dayN}/${ph.total} · Phase ${ph.n}: ${ph.name} · ` : "") + `🏅 Best streak ${Calc.longest()} · 📅 ${daysLogged} days logged`;
-    $("motto").textContent = streak >= 1
-      ? `🔥 ${streak}-day streak. This is how invisible progress becomes visible. Don't break the chain.`
-      : (ph ? ph.motto : "The gym rule: nothing looks different for weeks, then suddenly everything does. Just keep showing up.");
+    $("hudSub").textContent = (ph ? `📅 Day ${ph.dayN}/${ph.total} · Phase ${ph.n}: ${ph.name} · ` : "") + `🛡 ${si.shields} shield${si.shields === 1 ? "" : "s"} · 🏅 Best streak ${Calc.longest()} · ${daysLogged} days logged`;
+    // the phase psychology must stay visible to consistent users, not just on day zero
+    let motto;
+    if (ph && ph.n === 3) motto = `⏳ ${ph.total - ph.dayN} days to go. ${ph.motto}`;
+    else if (streak >= 1 && ph) motto = `🔥 ${streak}-day streak. ${ph.motto}`;
+    else if (streak >= 1) motto = `🔥 ${streak}-day streak. This is how invisible progress becomes visible. Don't break the chain.`;
+    else motto = ph ? ph.motto : "The gym rule: nothing looks different for weeks, then suddenly everything does. Just keep showing up.";
+    $("motto").textContent = motto;
 
     if (this.lastLevel !== null && level > this.lastLevel){
       FX.burst(); FX.toast("⚡ Level up! Lv " + level + " — " + LEVEL_NAMES[Math.min(level-1, LEVEL_NAMES.length-1)]);
@@ -927,6 +1116,16 @@ const Quests = {
     $("addRow").style.display = isPast ? "none" : "flex";
     $("roNote").style.display = isPast ? "block" : "none";
     if (isPast) $("roNote").textContent = "Past day — the record. Backfill a tick if you actually did it; adding/deleting is closed.";
+
+    // close the competence loop: resurface yesterday's mistake-register note
+    const yd = new Date(TODAY + "T00:00:00"); yd.setDate(yd.getDate() - 1);
+    const yTxt = Store.state.notes[iso(yd)];
+    const yEl = $("yNote");
+    if (isToday && yTxt && !sessionStorage.getItem("qb_ynote_" + TODAY)){
+      yEl.style.display = "block";
+      yEl.innerHTML = `📓 <b>Yesterday's lesson:</b> ${esc(yTxt.slice(0,180))}${yTxt.length > 180 ? "…" : ""} <button class="ynote-x" aria-label="Dismiss">×</button>`;
+      yEl.querySelector(".ynote-x").onclick = () => { sessionStorage.setItem("qb_ynote_" + TODAY, "1"); yEl.style.display = "none"; };
+    } else yEl.style.display = "none";
 
     const done = items.filter(i => i.done).length;
     $("todoFrac").textContent = done + " of " + items.length + " done";
@@ -970,7 +1169,9 @@ const Quests = {
         <div class="ds-hint">Saved automatically · synced to your account</div>
       </div>`;
     const ta = $("dayNote");
-    ta.addEventListener("change", () => { Store.state.notes[State.selected] = ta.value; Store.touch(); });
+    let nt; // save while typing — mobile users swipe-kill the app without ever blurring the field
+    ta.addEventListener("input", () => { clearTimeout(nt); nt = setTimeout(() => { Store.state.notes[State.selected] = ta.value; Store.touch(); }, 500); });
+    ta.addEventListener("change", () => { clearTimeout(nt); Store.state.notes[State.selected] = ta.value; Store.touch(); });
   },
   add(text, date){
     const d = date || State.selected;
@@ -1004,6 +1205,7 @@ const Quests = {
     Store.setDay(State.selected, items);
     this.syncPair(target, becomingDone);
     App.render();
+    if (becomingDone) Sound.tick();
     if (becomingDone && x != null){
       if (Math.random() < LUCKY_ODDS){
         Store.state.bonusXp = (Store.state.bonusXp||0) + 10; Store.touch();
@@ -1011,10 +1213,11 @@ const Quests = {
       } else FX.floatXP(x, y, "+10 XP");
     }
     const after = Store.day(State.selected);
-    if (after.length && after.every(i => i.done) && !wasComplete) FX.burst();
+    if (after.length && after.every(i => i.done) && !wasComplete){ FX.burst(); Sound.fanfare(); }
   },
   remove(id){
     if (State.selected < TODAY) return;
+    Store.tombstone(id);
     Store.setDay(State.selected, Store.day(State.selected).filter(i => i.id !== id));
     App.render();
   },
@@ -1033,9 +1236,10 @@ const Quests = {
 
 /* ---------------- Focus ---------------- */
 const Focus = {
-  iv:null, KEY:"qb_focus",
-  session(){ try { return JSON.parse(localStorage.getItem(this.KEY)); } catch(e){ return null; } },
-  save(s){ s ? localStorage.setItem(this.KEY, JSON.stringify(s)) : localStorage.removeItem(this.KEY); },
+  iv:null,
+  key(){ return "qb_focus_" + (Store.uid || "anon"); }, // scoped per account
+  session(){ try { return JSON.parse(localStorage.getItem(this.key())); } catch(e){ return null; } },
+  save(s){ s ? localStorage.setItem(this.key(), JSON.stringify(s)) : localStorage.removeItem(this.key()); },
   start(date, id, text, mins){
     mins = mins || Store.state.focusDur || 25;
     this.save({ date, id, text, dur:mins*60, endAt:Date.now()+mins*60*1000, pausedRemaining:null, credited:false });
@@ -1052,6 +1256,10 @@ const Focus = {
     document.querySelectorAll("#fDurs .fdur").forEach(b => b.classList.toggle("on", +b.dataset.mins === cur));
   },
   remaining(s){ return s.pausedRemaining != null ? s.pausedRemaining : Math.max(0, (s.endAt - Date.now())/1000); },
+  wake:null,
+  async keepAwake(){
+    try { this.wake = await navigator.wakeLock.request("screen"); } catch(e){}
+  },
   open(){
     const s = this.session(); if (!s) return;
     $("fTask").textContent = s.text;
@@ -1059,10 +1267,12 @@ const Focus = {
     this.renderDurs(); this.tick();
     if (this.iv) clearInterval(this.iv);
     this.iv = setInterval(() => this.tick(), 500);
+    this.keepAwake(); // phone stays lit through the session
   },
   close(){
     if (this.iv){ clearInterval(this.iv); this.iv = null; }
     $("focusOverlay").classList.remove("open");
+    if (this.wake){ this.wake.release().catch(() => {}); this.wake = null; }
     this.save(null);
   },
   tick(){
@@ -1102,7 +1312,12 @@ const Focus = {
     this.close(); App.render();
     FX.toast("Session ended — the minutes you put in still count.");
   },
-  restore(){ if (this.session()) this.open(); }
+  restore(){
+    const s = this.session(); if (!s) return;
+    // stale session from a killed tab: never credit minutes that weren't focused
+    if (!s.credited && s.pausedRemaining == null && Date.now() > s.endAt + 10*60000){ this.save(null); return; }
+    this.open();
+  }
 };
 
 /* ---------------- Milestones ---------------- */
@@ -1127,9 +1342,13 @@ const Miles = {
   toggle(i, x, y){
     const m = Store.state.milestones[i]; if (!m) return;
     m.done = !m.done; Store.touch(); App.render();
-    if (m.done){ FX.floatXP(x, y, "+100 XP"); FX.burst(); }
+    if (m.done){ FX.floatXP(x, y, "+100 XP"); FX.burst(); Sound.fanfare(); }
   },
-  remove(i){ Store.state.milestones.splice(i,1); Store.touch(); App.render(); },
+  remove(i){
+    const m = Store.state.milestones[i];
+    if (m) Store.tombstone(m.id);
+    Store.state.milestones.splice(i,1); Store.touch(); App.render();
+  },
   completeByText(texts){
     let n = 0;
     for (const t of texts){
@@ -1179,7 +1398,7 @@ THE CONSTITUTION you operate on (exam-prep psychology):
 - Self-Determination Theory: protect Autonomy (they choose; you shape plans into SMART, finishable-today quests — small and immediate beats hyperbolic discounting), Competence (coach active recall over rereading, a mistake register in end-of-day notes, sleep for memory consolidation), Relatedness (you are the partner; after slips push self-compassion + restart, never shame spirals).
 - Hard days toolkit: friction design for distractions, urge surfing, progressive muscle relaxation, exercise.
 USER DATA: name: ${uname ? `"${uname}" (address them by name)` : "UNKNOWN — ask what to call them, then save it with set_name"}, preparing for / long-term goal: "${s.goals.longTerm||"UNKNOWN — ask them what exam/goal they are preparing for"}", target date: ${s.goals.targetDate||"not set"}${ph ? `, journey: day ${ph.dayN}/${ph.total} (Phase ${ph.n}: ${ph.name})` : ""}, weekly goal: "${s.goals.weekGoal||"not set"}", current streak: ${Calc.streak()} days, last 7 days: ${done7} quests done / ${missed7} missed, today's quests: ${todays}. Milestones: ${miles}.
-YOUR CHARACTER: an honest companion, not a cheerleader. Warm but blunt. When the record is good, name it specifically. When they keep missing tasks, deliver the brutal truth plainly — e.g. "That's ${missed7} misses this week. The people you're competing against did those reps. This is exactly how the 99% who fail, fail." — then IMMEDIATELY give the smallest next rep to restart. Attack the pattern, never the person. Reference their phase, streak and misses so they feel seen. You help with: turning plans into concrete daily quests (SMART: specific, finishable in a day), breaking long-term goals into milestones, writing honest end-of-day notes (include what was missed and one lesson — a mistake register), completing items they say they did, and sending app feedback to the maker (via send_feedback; feedback can also be sent from the Feedback button in the header). If asked where feedback goes or who reads it: it is stored privately in the app's database and read directly by the maker — every note is seen.
+YOUR CHARACTER: an honest companion, not a cheerleader. Warm but blunt. When the record is good, name it specifically. When they keep missing tasks, deliver the brutal truth plainly, grounded in THEIR OWN record — e.g. "That's ${missed7} misses this week. The people you're competing against did those reps. This is exactly how the 99% who fail, fail." — then IMMEDIATELY give the smallest next rep to restart (self-compassion = fast restart, not soft talk). Mirror the user's language: if they write in Hindi or Hinglish, reply in Hinglish and let the blunt lines land in it — e.g. "Bhai, is hafte ${missed7} misses — aise hi 99% reh jaate hain. Gyaan nahi chahiye, ek chhota rep chahiye: kal ka sabse aasaan quest abhi set kar." Attack the pattern, never the person. Reference their phase, streak and misses so they feel seen. You help with: turning plans into concrete daily quests (SMART: specific, finishable in a day), breaking long-term goals into milestones, writing honest end-of-day notes (include what was missed and one lesson — a mistake register), completing items they say they did, and sending app feedback to the maker (via send_feedback; feedback can also be sent from the Feedback button in the header). If asked where feedback goes or who reads it: it is stored privately in the app's database and read directly by the maker — every note is seen.
 You MUST reply with ONLY a JSON object, no markdown, in this exact shape:
 {"say":"your short conversational reply","actions":[...]}
 Allowed actions (use only when appropriate, else empty array):
@@ -1195,8 +1414,13 @@ Allowed actions (use only when appropriate, else empty array):
 {"type":"send_feedback","text":"feedback for the app maker"} (when the user wants to report a bug, suggestion or complaint about the app — draft it from their words and send it)
 Rules: keep "say" under 60 words. Split vague plans into 1-4 concrete quests. When asked to summarize the day, look at done/open quests above and write an honest, kind note via set_note. Never invent completions the user didn't state.`;
   },
+  busy:false,
   async send(text){
-    if (!text.trim()) return;
+    if (!text.trim() || this.busy) return; // double-taps must not burn AI quota
+    this.busy = true; $("aiSend").disabled = true;
+    try { await this._send(text); } finally { this.busy = false; $("aiSend").disabled = false; }
+  },
+  async _send(text){
     this.msg("user", text);
     this.history.push({ role:"user", text });
     $("aiText").value = "";
@@ -1268,7 +1492,7 @@ Rules: keep "say" under 60 words. Split vague plans into 1-4 concrete quests. Wh
           (a.items||[]).slice(0,8).forEach(t => {
             const needle = String(t).toLowerCase();
             const i = items.findIndex(x => x.text.toLowerCase().includes(needle.slice(0,40)));
-            if (i > -1){ items.splice(i,1); n++; }
+            if (i > -1){ Store.tombstone(items[i].id); items.splice(i,1); n++; }
           });
           if (n){ Store.setDay(date, items); this.act(`Removed ${n} quest${n>1?"s":""}`); }
         } else if (a.type === "send_feedback"){
@@ -1279,7 +1503,7 @@ Rules: keep "say" under 60 words. Split vague plans into 1-4 concrete quests. Wh
           (a.items||[]).slice(0,8).forEach(t => {
             const needle = String(t).toLowerCase();
             const i = Store.state.milestones.findIndex(x => x.text.toLowerCase().includes(needle.slice(0,40)));
-            if (i > -1){ Store.state.milestones.splice(i,1); n++; }
+            if (i > -1){ Store.tombstone(Store.state.milestones[i].id); Store.state.milestones.splice(i,1); n++; }
           });
           if (n){ Store.touch(); this.act(`Removed ${n} milestone${n>1?"s":""}`); }
         }
@@ -1299,7 +1523,7 @@ const Feedback = {
   QKEY:"qb_fb_queue",
   queued(){ try { return JSON.parse(localStorage.getItem(this.QKEY)) || []; } catch(e){ return []; } },
   setQueue(q){ try { localStorage.setItem(this.QKEY, JSON.stringify(q)); } catch(e){} },
-  open(){ $("fbOverlay").classList.add("open"); $("fbStatus").textContent = ""; Community.start(); },
+  open(){ $("fbOverlay").classList.add("open"); $("fbStatus").textContent = ""; Community.start(); AdminStats.load(); },
   close(){ $("fbOverlay").classList.remove("open"); Community.stop(); },
   async post(text){
     const res = await Api.call("POST", "/feedback", { text });
@@ -1338,6 +1562,137 @@ const Feedback = {
       if (!ok) left.push(item);
     }
     this.setQueue(left);
+  }
+};
+
+/* ---------------- Sound (synthesized, no files) ---------------- */
+const Sound = {
+  ctx:null,
+  enabled(){ return !Store.state || Store.state.sound !== false; },
+  play(notes){
+    if (!this.enabled()) return;
+    try {
+      this.ctx = this.ctx || new (window.AudioContext || window.webkitAudioContext)();
+      const t = this.ctx.currentTime;
+      for (const [freq, delay, dur] of notes){
+        const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = "sine"; o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, t + delay);
+        g.gain.exponentialRampToValueAtTime(0.10, t + delay + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + delay + dur);
+        o.connect(g).connect(this.ctx.destination);
+        o.start(t + delay); o.stop(t + delay + dur + 0.05);
+      }
+    } catch(e){}
+  },
+  tick(){ this.play([[880, 0, 0.10], [1318, 0.055, 0.14]]); },
+  fanfare(){ this.play([[659, 0, 0.14], [880, 0.10, 0.14], [1108, 0.20, 0.22]]); }
+};
+
+/* ---------------- Weekly review ---------------- */
+const Weekly = {
+  open(){
+    const days = [];
+    for (let k = 6; k >= 0; k--){
+      const d = new Date(TODAY + "T00:00:00"); d.setDate(d.getDate() - k);
+      days.push(iso(d));
+    }
+    let done = 0, missed = 0, perfect = 0, daysActive = 0;
+    for (const day of days){
+      const its = Store.day(day);
+      if (!its.length) continue;
+      const dn = its.filter(i => i.done).length;
+      done += dn; missed += its.length - dn;
+      if (dn) daysActive++;
+      if (dn === its.length) perfect++;
+    }
+    const total = done + missed;
+    const pctDone = total ? Math.round(100 * done / total) : 0;
+    const streak = Calc.streak();
+    const ph = Calc.phase();
+    const fmt = d => new Date(d + "T00:00:00").toLocaleDateString(undefined, { month:"short", day:"numeric" });
+    let verdict = !total
+      ? "A quiet week. The next one starts the moment you add a quest."
+      : pctDone >= 80 ? "Strong week. This is what showing up looks like — protect the rhythm."
+      : pctDone >= 50 ? "A real week — wins and misses. Look at what tripped you, fix one thing, go again."
+      : "Rough week, honestly. Don't negotiate with the past — set tomorrow's smallest quest tonight.";
+    if (ph && ph.n === 3 && total && pctDone < 50)
+      verdict = "Weeks like this near the finish are anxiety, not laziness — that's chemistry, not character. Shrink the reps: set the smallest possible quest for tomorrow, and remember — nerves are readiness.";
+    const lessons = days.map(d => ({ d, n: Store.state.notes[d] })).filter(x => x.n);
+    this.summary = `My week on Accountability Partner (${fmt(days[0])}–${fmt(days[6])}): ${done} quests done, ${perfect} perfect days, ${streak}-day streak${ph ? `, day ${ph.dayN}/${ph.total} of my journey` : ""}. ${pctDone}% completion.`;
+    $("wkCard").innerHTML = `
+      <h2>📅 Your week</h2>
+      <div class="wk-range">${fmt(days[0])} – ${fmt(days[6])}${ph ? ` · Day ${ph.dayN}/${ph.total} · Phase ${ph.n}: ${ph.name}` : ""}</div>
+      <div class="wk-grid">
+        <div class="wtile"><div class="wn">${done}</div><div class="wk">✅ Done</div></div>
+        <div class="wtile"><div class="wn">${missed}</div><div class="wk">✗ Missed</div></div>
+        <div class="wtile"><div class="wn">${pctDone}%</div><div class="wk">Completion</div></div>
+        <div class="wtile"><div class="wn">${perfect}</div><div class="wk">🌟 Perfect days</div></div>
+        <div class="wtile"><div class="wn">${daysActive}/7</div><div class="wk">Days active</div></div>
+        <div class="wtile"><div class="wn">${streak}</div><div class="wk">🔥 Streak</div></div>
+      </div>
+      <div class="wk-verdict">${verdict}</div>
+      ${lessons.length ? `<div class="wk-lessons"><div class="ds-title">📓 This week's lessons</div>${lessons.map(x => `<div class="wk-les"><b>${fmt(x.d)}:</b> ${esc(x.n.slice(0,160))}${x.n.length > 160 ? "…" : ""}</div>`).join("")}</div>` : ""}
+      <div class="wk-ritual">
+        <input type="text" id="wkTrip" maxlength="140" placeholder="One thing that tripped me this week">
+        <input type="text" id="wkNext" maxlength="140" placeholder="One change for next week">
+      </div>`;
+    const wr = (Store.state.weeklyReviews = Store.state.weeklyReviews || {});
+    const wkKey = days[0];
+    const rec = wr[wkKey] || {};
+    $("wkTrip").value = rec.trip || ""; $("wkNext").value = rec.next || "";
+    ["wkTrip","wkNext"].forEach(id => $(id).addEventListener("change", () => {
+      wr[wkKey] = { trip: $("wkTrip").value.slice(0,140), next: $("wkNext").value.slice(0,140) };
+      if ($("wkNext").value.trim()) Store.state.goals.weekGoal = $("wkNext").value.trim().slice(0,140); // intention becomes next week's goal
+      Store.touch();
+    }));
+    $("wkOverlay").classList.add("open");
+  },
+  close(){ $("wkOverlay").classList.remove("open"); },
+  async share(){
+    try {
+      if (navigator.share){ await navigator.share({ text: this.summary, url: location.origin }); return; }
+      await navigator.clipboard.writeText(this.summary + "\n" + location.origin);
+      FX.toast("Copied — paste it anywhere.");
+    } catch(e){}
+  }
+};
+
+/* ---------------- Admin stats (only renders for the admin account) ---------------- */
+const AdminStats = {
+  async load(){
+    try {
+      const res = await Api.call("GET", "/stats");
+      if (!res.ok){ $("adminStats").style.display = "none"; return; }
+      const s = await res.json();
+      const pct = (a, b) => b ? Math.round(100 * a / b) + "%" : "—";
+      const sections = [
+        ["👥 Users", [
+          ["Signups", s.totalUsers], ["Confirmed", s.confirmed], ["Unverified", s.totalUsers - s.confirmed],
+          ["New today", s.newToday], ["New · 7d", s.new7d], ["Used the app", s.withData],
+          ["Set a goal", s.withGoal], ["Goal rate", pct(s.withGoal, s.withData)]
+        ]],
+        ["⚡ Engagement", [
+          ["Online now", s.online], ["Active today", s.activeToday], ["Active · 7d", s.active7],
+          ["7d retention", pct(s.active7, s.withData)], ["AI today", s.aiToday], ["AI total", s.aiTotal]
+        ]],
+        ["🏆 Product", [
+          ["Quests added", s.questsAdded], ["Quests done", s.questsDone], ["Completion", pct(s.questsDone, s.questsAdded)],
+          ["Milestones done", s.milesDone], ["Focus minutes", s.focusMin]
+        ]],
+        ["💬 Community", [
+          ["Feedback", s.feedback], ["Feedback today", s.feedbackToday],
+          ["Chat msgs", s.community], ["Chat today", s.communityToday], ["Banned", s.banned]
+        ]]
+      ];
+      $("stGrid").innerHTML = sections.map(([title, tiles]) => `
+        <div class="st-sec">
+          <div class="st-title">${title}</div>
+          <div class="st-grid">${tiles.map(([k, v]) =>
+            `<div class="wtile"><div class="wn">${v}</div><div class="wk">${k}</div></div>`).join("")}</div>
+        </div>`).join("");
+      $("adminStats").style.display = "block";
+    } catch(e){}
   }
 };
 
@@ -1477,6 +1832,7 @@ const App = {
     $("gLong").value = Store.state.goals.longTerm || "";
     $("gTarget").value = Store.state.goals.targetDate || "";
     $("gWeek").value = Store.state.goals.weekGoal || "";
+    $("gRemind").checked = !Store.state.remindersOff;
   },
   bind(){
     document.addEventListener("click", e => {
@@ -1540,6 +1896,22 @@ const App = {
       const next = document.body.classList.contains("dark") ? "light" : "dark";
       Store.state.theme = next; Store.touch(); App.theme();
     });
+    $("soundToggle").addEventListener("click", () => {
+      Store.state.sound = Store.state.sound === false;
+      Store.touch();
+      $("soundToggle").textContent = Store.state.sound === false ? "🔇 Sound" : "🔊 Sound";
+      if (Store.state.sound !== false) Sound.tick();
+    });
+    $("menuBtn").addEventListener("click", e => { e.stopPropagation(); $("hdrMenu").classList.toggle("open"); });
+    document.addEventListener("click", e => { if (!e.target.closest("#hdrMenu") && !e.target.closest("#menuBtn")) $("hdrMenu").classList.remove("open"); });
+    $("weeklyBtn").addEventListener("click", () => Weekly.open());
+    $("wkBack").addEventListener("click", () => Weekly.close());
+    $("wkShare").addEventListener("click", () => Weekly.share());
+    $("sosBtn").addEventListener("click", () => $("sosOverlay").classList.add("open"));
+    $("fSos").addEventListener("click", () => $("sosOverlay").classList.add("open"));
+    $("sosBack").addEventListener("click", () => $("sosOverlay").classList.remove("open"));
+    $("gRemind").addEventListener("change", () => { Store.state.remindersOff = !$("gRemind").checked; Store.touch(); });
+    $("dayName").addEventListener("click", () => { try { $("datePicker").showPicker(); } catch(e){ $("datePicker").focus(); } });
     $("logoutBtn").addEventListener("click", () => { Auth.clear(); location.reload(); });
     $("fDone").addEventListener("click", () => Focus.complete());
     $("fPause").addEventListener("click", () => Focus.pauseResume());
@@ -1557,26 +1929,60 @@ const App = {
       if (btn.dataset.cmdel) Community.act("delete", { id: btn.dataset.cmdel });
       else if (btn.dataset.cmban) Community.act("ban", { aid: btn.dataset.cmban });
     });
-    $("fbBack").addEventListener("click", () => Feedback.close());
+    $("fbBack").addEventListener("click", () => {
+      Feedback.close();
+      if (Feedback.fromAuth && !Auth.tokens()){ Feedback.fromAuth = false; $("authOverlay").classList.remove("hidden"); }
+    });
     $("fbSend").addEventListener("click", () => Feedback.send());
     $("aiBubble").addEventListener("click", () => $("aiPanel").classList.contains("open") ? Assistant.close() : Assistant.open());
     $("aiClose").addEventListener("click", () => Assistant.close());
     $("aiSend").addEventListener("click", () => Assistant.send($("aiText").value));
-    $("aiText").addEventListener("keydown", e => { if (e.key === "Enter") Assistant.send($("aiText").value); });
+    $("aiText").addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing) Assistant.send($("aiText").value); });
     document.querySelectorAll(".ai-chip").forEach(c => c.addEventListener("click", () => { Assistant.open(); Assistant.send(c.dataset.q); }));
     setInterval(() => { if (todayIso() !== TODAY) App.render(); }, 60000);
     setInterval(() => Store.push(), 30000);
-    addEventListener("beforeunload", () => { if (Store.dirty) navigator.sendBeacon && Store.push(); });
+    addEventListener("beforeunload", () => Store.pushNow());
+    document.addEventListener("visibilitychange", () => { if (document.hidden) Store.pushNow(); }); // mobile swipe-kill path
   },
   theme(){
     document.body.classList.toggle("dark", Store.state.theme === "dark");
-    $("themeToggle").textContent = Store.state.theme === "dark" ? "☀️" : "🌙";
+    $("themeToggle").textContent = Store.state.theme === "dark" ? "☀️ Theme" : "🌙 Theme";
+    $("soundToggle").textContent = Store.state.sound === false ? "🔇 Sound" : "🔊 Sound";
+  },
+  guest:false,
+  startGuest(){
+    this.guest = true;
+    $("authOverlay").classList.add("hidden");
+    $("appWrap").style.display = "block";
+    $("aiBubble").style.display = "none";
+    Store.state = Store.loadCache() || Store.blank();
+    if (!Store.state.goals.startDate) Store.state.goals.startDate = TODAY;
+    if (!Store.state.profile) Store.state.profile = { name:"" };
+    Store.online = false;
+    this.theme(); this.fillGoalInputs(); this.render();
+    UI.syncStatus();
+    $("greetLine").innerHTML = 'Guest mode — everything stays on this device. <a id="guestUp" style="color:var(--blue);cursor:pointer;text-decoration:underline;">Create a free account</a> to sync across devices and unlock your AI partner.';
+    $("guestUp").addEventListener("click", () => location.reload());
+    Tour.maybeStart(() => {});
   },
   async start(){
+    this.guest = false;
     $("authOverlay").classList.add("hidden");
     $("appWrap").style.display = "block";
     $("aiBubble").style.display = "block";
+    Store.uid = Auth.sub();
+    const cached = Store.loadCache();
+    if (cached){ Store.state = cached; this.theme(); this.fillGoalInputs(); this.render(); } // instant board, no 0-of-0 flash
     await Store.pull();
+    // carry guest-mode work into a fresh account
+    try {
+      const anon = JSON.parse(localStorage.getItem("qb_state_anon"));
+      if (anon && !Object.keys(Store.state.quests || {}).length && !Store.state.goals.longTerm){
+        Store.state = Store.merge(anon, Store.state) || Store.state;
+        localStorage.removeItem("qb_state_anon");
+        Store.touch();
+      }
+    } catch(e){}
     Store.rollover();
     this.theme();
     this.fillGoalInputs();
@@ -1599,14 +2005,49 @@ const App = {
 (function AuthUI(){
   let pendingEmail = "", pendingPw = "";
   const err = m => $("authErr").textContent = m || "";
-  const show = id => { ["authLogin","authSignup","authConfirm"].forEach(x => $(x).style.display = x === id ? "block" : "none"); err(""); };
+  const show = id => { ["authLogin","authSignup","authConfirm","authForgot","authReset"].forEach(x => $(x).style.display = x === id ? "block" : "none"); err(""); };
   $("toSignup").addEventListener("click", () => show("authSignup"));
   $("toLogin").addEventListener("click", () => show("authLogin"));
+  $("toLogin2").addEventListener("click", () => show("authLogin"));
+  $("toForgot").addEventListener("click", () => { $("fpEmail").value = $("liEmail").value.trim(); show("authForgot"); });
+  $("guestBtn").addEventListener("click", () => App.startGuest());
+  $("authScience").addEventListener("click", () => {
+    $("authOverlay").classList.add("hidden");
+    Feedback.fromAuth = true;
+    Feedback.open();
+    try { document.querySelector(".fb-const").scrollIntoView(); } catch(e){}
+  });
   $("liBtn").addEventListener("click", async () => {
     err(""); $("liBtn").disabled = true;
     try { await Auth.login($("liEmail").value.trim(), $("liPw").value); App.start(); }
-    catch(e){ err(e.message); }
+    catch(e){
+      if (/not confirmed/i.test(e.message || "")){
+        // signup drop-off rescue: re-send the code and take them straight to confirm
+        pendingEmail = $("liEmail").value.trim(); pendingPw = $("liPw").value;
+        try { await Auth.resend(pendingEmail); } catch(_){}
+        show("authConfirm");
+        err("Almost there — we just emailed you a fresh 6-digit code.");
+      } else err(e.message);
+    }
     $("liBtn").disabled = false;
+  });
+  $("fpBtn").addEventListener("click", async () => {
+    err(""); $("fpBtn").disabled = true;
+    try {
+      await Auth.idp("ForgotPassword", { ClientId: CONFIG.clientId, Username: $("fpEmail").value.trim() });
+      show("authReset");
+    } catch(e){ err(e.message); }
+    $("fpBtn").disabled = false;
+  });
+  $("fpSetBtn").addEventListener("click", async () => {
+    err(""); $("fpSetBtn").disabled = true;
+    try {
+      const email = $("fpEmail").value.trim();
+      await Auth.idp("ConfirmForgotPassword", { ClientId: CONFIG.clientId, Username: email, ConfirmationCode: $("fpCode").value.trim(), Password: $("fpPw").value });
+      await Auth.login(email, $("fpPw").value);
+      App.start();
+    } catch(e){ err(e.message); }
+    $("fpSetBtn").disabled = false;
   });
   $("suBtn").addEventListener("click", async () => {
     err(""); $("suBtn").disabled = true;

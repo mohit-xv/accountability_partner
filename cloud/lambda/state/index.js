@@ -1,5 +1,5 @@
 "use strict";
-const { DynamoDBClient, GetItemCommand, PutItemCommand, DeleteItemCommand, ScanCommand } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBClient, GetItemCommand, PutItemCommand, DeleteItemCommand, ScanCommand, QueryCommand } = require("@aws-sdk/client-dynamodb");
 const client = new DynamoDBClient({});
 const TABLE = process.env.TABLE;
 const ADMIN = (process.env.ADMIN || "").toLowerCase();
@@ -59,17 +59,18 @@ async function community(method, sub, email, raw) {
 
   if (method === "GET") {
     const dn = await displayName(me);
-    const res = await client.send(new ScanCommand({
+    // GSI query: cost scales with message count, not table size
+    const res = await client.send(new QueryCommand({
       TableName: TABLE,
-      FilterExpression: "begins_with(pk, :p)",
-      ExpressionAttributeValues: { ":p": { S: "cm#" } },
-      ProjectionExpression: "pk, #n, #t, #a, aid",
-      ExpressionAttributeNames: { "#n": "name", "#t": "text", "#a": "at" }
+      IndexName: "gsi1",
+      KeyConditionExpression: "gsi1pk = :p",
+      ExpressionAttributeValues: { ":p": { S: "cm" } },
+      ScanIndexForward: false,
+      Limit: 100
     }));
     const messages = (res.Items || [])
       .map(i => ({ id: i.pk.S, name: i.name?.S || "?", text: i.text?.S || "", at: i.at?.S || "", aid: i.aid?.S || "" }))
-      .sort((a, b) => a.id < b.id ? -1 : 1)
-      .slice(-100)
+      .reverse()
       .map(m => ({ ...m, mine: m.aid === me.aid }));
     return json(200, { me: { name: dn.name, custom: dn.custom, admin: isAdmin }, messages });
   }
@@ -130,10 +131,88 @@ async function community(method, sub, email, raw) {
     TableName: TABLE,
     Item: {
       pk: { S: `cm#${now}#${me.aid}` },
+      gsi1pk: { S: "cm" }, gsi1sk: { S: `${now}#${me.aid}` },
       name: { S: dn.name }, text: { S: text }, at: { S: now }, aid: { S: me.aid }
     }
   }));
   return json(200, { ok: true });
+}
+
+async function adminStats() {
+  const now = Date.now(), day = 86400000;
+  const today = new Date().toISOString().slice(0, 10);
+  let totalUsers = 0, confirmed = 0, newToday = 0, new7d = 0;
+  try {
+    const { CognitoIdentityProviderClient, ListUsersCommand } = require("@aws-sdk/client-cognito-identity-provider");
+    const cog = new CognitoIdentityProviderClient({});
+    let token, pages = 0;
+    do {
+      const r = await cog.send(new ListUsersCommand({ UserPoolId: process.env.POOL, Limit: 60, PaginationToken: token }));
+      for (const u of r.Users || []) {
+        totalUsers++;
+        if (u.UserStatus === "CONFIRMED") confirmed++;
+        const c = u.UserCreateDate ? new Date(u.UserCreateDate).getTime() : 0;
+        if (now - c < day) newToday++;
+        if (now - c < 7 * day) new7d++;
+      }
+      token = r.PaginationToken; pages++;
+    } while (token && pages < 17);
+    if (token) console.error("STATS TRUNCATED: user list capped at ~1020 — raise the page cap");
+  } catch (e) { console.error("cognito stats failed:", e && e.message); }
+
+  let withData = 0, activeToday = 0, active7 = 0, online = 0, bans = 0;
+  let fb = 0, fbToday = 0, cm = 0, cmToday = 0, aiToday = 0, aiTotal = 0;
+  let questsAdded = 0, questsDone = 0, milesDone = 0, focusMin = 0, withGoal = 0;
+  let startKey;
+  do {
+    const r = await client.send(new ScanCommand({
+      TableName: TABLE,
+      ProjectionExpression: "pk, updatedAt, #n, #s",
+      ExpressionAttributeNames: { "#n": "n", "#s": "state" },
+      ExclusiveStartKey: startKey
+    }));
+    for (const i of r.Items || []) {
+      const pk = i.pk.S;
+      if (pk.startsWith("fb#")) { fb++; if (pk.startsWith("fb#" + today)) fbToday++; }
+      else if (pk.startsWith("cm#")) { cm++; if (pk.startsWith("cm#" + today)) cmToday++; }
+      else if (pk.startsWith("ban#")) bans++;
+      else if (pk.startsWith("cmname#") || pk.startsWith("rl#")) { /* bookkeeping rows */ }
+      else if (pk.includes("#ai#")) {
+        const calls = parseInt(i.n?.N || "0", 10);
+        aiTotal += calls;
+        if (pk.endsWith("#" + today)) aiToday += calls;
+      }
+      else {
+        withData++;
+        const u = i.updatedAt?.S ? new Date(i.updatedAt.S).getTime() : 0;
+        if (now - u < day) activeToday++;
+        if (now - u < 7 * day) active7++;
+        if (now - u < 10 * 60000) online++; // synced within 10 min ≈ online
+        if (i.state?.S) {
+          try {
+            const st = JSON.parse(i.state.S);
+            for (const d in (st.quests || {})) {
+              const its = st.quests[d] || [];
+              questsAdded += its.length;
+              questsDone += its.filter(x => x.done).length;
+            }
+            milesDone += (st.milestones || []).filter(m => m.done).length;
+            focusMin += Math.round(st.focusMin || 0);
+            if (st.goals?.longTerm) withGoal++;
+          } catch {}
+        }
+      }
+    }
+    startKey = r.LastEvaluatedKey;
+  } while (startKey);
+
+  return json(200, {
+    totalUsers, confirmed, newToday, new7d,
+    withData, activeToday, active7, online, withGoal,
+    feedback: fb, feedbackToday: fbToday, community: cm, communityToday: cmToday, banned: bans,
+    aiToday, aiTotal,
+    questsAdded, questsDone, milesDone, focusMin
+  });
 }
 
 // Best-effort mirror of feedback to the maker's Telegram — DynamoDB stays the source of truth.
@@ -166,11 +245,20 @@ exports.handler = async (event) => {
   try {
     if (path === "/community") return await community(method, sub, String(claims.email || ""), raw);
 
+    if (path === "/stats" && method === "GET") {
+      if (!ADMIN || String(claims.email || "").toLowerCase() !== ADMIN) return json(403, { error: "admins only" });
+      return await adminStats();
+    }
+
     if (path === "/feedback" && method === "POST") {
       let parsed;
       try { parsed = JSON.parse(raw); } catch { return json(400, { error: "bad json" }); }
       const text = String(parsed?.text || "").slice(0, 2000).trim();
       if (!text) return json(400, { error: "empty" });
+      const fbDay = new Date().toISOString().slice(0, 10);
+      if (!(await bumpCounter(`rl#fb#${fbDay}#${sub.slice(0, 8)}`, 30))) {
+        return json(429, { error: "Daily feedback limit reached — thank you for the enthusiasm!" });
+      }
       const now = new Date().toISOString();
       await client.send(new PutItemCommand({
         TableName: TABLE,
